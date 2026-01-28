@@ -28,11 +28,15 @@ export const checkPDFInCache = async (pdfPath: string): Promise<boolean> => {
   }
 
   try {
+    // Construct full URL with base path for GitHub Pages compatibility
+    const baseUrl = import.meta.env.BASE_URL || '/';
+    const fullUrl = `${window.location.origin}${baseUrl}${pdfPath.replace(/^\//, '')}`;
+
     const cacheNames = await caches.keys();
 
     for (const cacheName of cacheNames) {
       const cache = await caches.open(cacheName);
-      const response = await cache.match(pdfPath);
+      const response = await cache.match(fullUrl);
 
       if (response) {
         console.log(`✓ Found ${pdfPath} in cache: ${cacheName}`);
@@ -40,7 +44,7 @@ export const checkPDFInCache = async (pdfPath: string): Promise<boolean> => {
       }
     }
 
-    console.warn(`✗ ${pdfPath} not found in any cache`);
+    console.warn(`✗ ${pdfPath} not found in any cache (checked: ${fullUrl})`);
     return false;
   } catch (error) {
     console.error('Error checking PDF in cache:', error);
