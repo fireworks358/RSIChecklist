@@ -7,8 +7,9 @@ export const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+  const isPDFPage = location.pathname.startsWith('/pdf/');
 
-  if (isHomePage) return null;
+  if (isHomePage || isPDFPage) return null;
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-nhs-blue text-white shadow-lg z-50">

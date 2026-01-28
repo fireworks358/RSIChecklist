@@ -31,8 +31,8 @@ export const PDFViewerPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-nhs-grey pt-32">
-      <div className="h-[calc(100vh-8rem)]">
+    <div className="min-h-screen bg-nhs-grey">
+      <div className="h-screen">
         <PDFViewer pdfPath={guideline.pdfPath} title={guideline.title} />
       </div>
     </div>

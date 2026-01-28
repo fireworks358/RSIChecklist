@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { PDFLoadingState } from './PDFLoadingState';
 import { useOfflineStatus } from '../../hooks/useOfflineStatus';
+import { Stopwatch } from '../ui/Stopwatch';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -14,6 +16,7 @@ interface PDFViewerProps {
 }
 
 export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
+  const navigate = useNavigate();
   // Construct full URL with base path for GitHub Pages compatibility
   const fullPdfUrl = `${import.meta.env.BASE_URL}${pdfPath.replace(/^\//, '')}`;
 
@@ -116,59 +119,84 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-nhs-grey">
-      {/* Offline Status Banner */}
+    <div className="flex flex-col h-full bg-nhs-grey relative">
+      {/* Floating Offline Status Badge */}
       {!isOnline && (
-        <div className="bg-nhs-warm-yellow text-nhs-black px-6 py-3 text-center font-bold text-lg">
-          ⚠️ Offline Mode - Viewing cached content only
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-nhs-warm-yellow text-nhs-black
+                       px-4 py-2 rounded-full shadow-lg font-bold text-sm animate-pulse">
+          ⚠️ Offline Mode
         </div>
       )}
 
-      {/* PDF Controls */}
-      <div className="flex items-center justify-between px-6 py-4 bg-white shadow-md">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={goToPrevPage}
-            disabled={pageNumber <= 1}
-            className="px-6 py-3 bg-nhs-blue text-white rounded-lg font-bold disabled:opacity-50
-                     disabled:cursor-not-allowed hover:bg-nhs-blue/90 active:scale-95 min-h-touch"
-          >
-            Previous
-          </button>
-          <span className="text-xl font-bold text-nhs-black">
-            Page {pageNumber} of {numPages}
-          </span>
-          <button
-            onClick={goToNextPage}
-            disabled={pageNumber >= numPages}
-            className="px-6 py-3 bg-nhs-blue text-white rounded-lg font-bold disabled:opacity-50
-                     disabled:cursor-not-allowed hover:bg-nhs-blue/90 active:scale-95 min-h-touch"
-          >
-            Next
-          </button>
-        </div>
+      {/* PDF Controls - Overlaying navigation area */}
+      <div className="fixed top-0 left-0 right-0 z-40 bg-nhs-blue/95 backdrop-blur-sm text-white shadow-lg">
+        <div className="flex items-center justify-between px-6 py-4">
+          {/* Left side: Back, Home, and Page controls */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
+                       transition-colors active:scale-95 min-h-touch"
+            >
+              ← Back
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
+                       transition-colors active:scale-95 min-h-touch flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              Home
+            </button>
+            <div className="h-8 w-px bg-white/30 mx-2"></div>
+            <button
+              onClick={goToPrevPage}
+              disabled={pageNumber <= 1}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold disabled:opacity-30
+                       disabled:cursor-not-allowed transition-colors active:scale-95 min-h-touch"
+            >
+              Previous
+            </button>
+            <span className="text-lg font-bold text-white">
+              Page {pageNumber} of {numPages}
+            </span>
+            <button
+              onClick={goToNextPage}
+              disabled={pageNumber >= numPages}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold disabled:opacity-30
+                       disabled:cursor-not-allowed transition-colors active:scale-95 min-h-touch"
+            >
+              Next
+            </button>
+          </div>
 
-        <div className="flex items-center gap-4">
-          <button
-            onClick={zoomOut}
-            className="px-6 py-3 bg-nhs-blue text-white rounded-lg font-bold hover:bg-nhs-blue/90
-                     active:scale-95 min-h-touch"
-          >
-            Zoom Out
-          </button>
-          <span className="text-xl font-bold text-nhs-black">{Math.round(scale * 100)}%</span>
-          <button
-            onClick={zoomIn}
-            className="px-6 py-3 bg-nhs-blue text-white rounded-lg font-bold hover:bg-nhs-blue/90
-                     active:scale-95 min-h-touch"
-          >
-            Zoom In
-          </button>
+          {/* Right side: Zoom controls and Timer */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={zoomOut}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
+                       transition-colors active:scale-95 min-h-touch"
+            >
+              Zoom Out
+            </button>
+            <span className="text-lg font-bold text-white">{Math.round(scale * 100)}%</span>
+            <button
+              onClick={zoomIn}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
+                       transition-colors active:scale-95 min-h-touch"
+            >
+              Zoom In
+            </button>
+            <div className="h-8 w-px bg-white/30 mx-2"></div>
+            <Stopwatch />
+          </div>
         </div>
       </div>
 
       {/* PDF Document */}
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-6 pt-24">
         <div className="flex justify-center">
           {loading && <PDFLoadingState />}
           <Document
