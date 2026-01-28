@@ -5,8 +5,8 @@ import { useOfflineStatus } from '../../hooks/useOfflineStatus';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
-// Configure PDF.js worker - using local file
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+// Configure PDF.js worker - using local file with base path
+pdfjs.GlobalWorkerOptions.workerSrc = `${import.meta.env.BASE_URL}pdf.worker.min.mjs`;
 
 interface PDFViewerProps {
   pdfPath: string;
@@ -14,6 +14,9 @@ interface PDFViewerProps {
 }
 
 export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
+  // Construct full URL with base path for GitHub Pages compatibility
+  const fullPdfUrl = `${import.meta.env.BASE_URL}${pdfPath.replace(/^\//, '')}`;
+
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
@@ -28,12 +31,12 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
     // Debug: Check if PDF is in cache when offline
     if (!isOnline && 'caches' in window) {
       caches.keys().then(async (cacheNames) => {
-        console.log(`🔍 Checking cache for: ${pdfPath}`);
+        console.log(`🔍 Checking cache for: ${fullPdfUrl}`);
         console.log(`📦 Available caches:`, cacheNames);
 
         for (const cacheName of cacheNames) {
           const cache = await caches.open(cacheName);
-          const response = await cache.match(pdfPath);
+          const response = await cache.match(fullPdfUrl);
           if (response) {
             console.log(`✓ Found ${pdfPath} in ${cacheName}`);
             return;
@@ -42,7 +45,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
         console.warn(`✗ ${pdfPath} NOT found in any cache while offline`);
       });
     }
-  }, [pdfPath, isOnline]);
+  }, [pdfPath, fullPdfUrl, isOnline]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -169,7 +172,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
         <div className="flex justify-center">
           {loading && <PDFLoadingState />}
           <Document
-            file={pdfPath}
+            file={fullPdfUrl}
             onLoadSuccess={onDocumentLoadSuccess}
             onLoadError={onDocumentLoadError}
             loading={<PDFLoadingState />}
