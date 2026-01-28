@@ -7,8 +7,7 @@ import { registerSW } from 'virtual:pwa-register'
 // Register service worker
 const updateSW = registerSW({
   immediate: true,
-  onRegisteredSW(swUrl, registration) {
-    console.log('Service Worker registered:', swUrl);
+  onRegistered(registration) {
     if (registration) {
       console.log('SW Registration:', registration);
     }

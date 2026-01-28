@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 export const Stopwatch: React.FC = () => {
   const [time, setTime] = useState(0); // Time in seconds
   const [isRunning, setIsRunning] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (isRunning) {

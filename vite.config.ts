@@ -4,6 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/RSIChecklist/',
   plugins: [
     react(),
     VitePWA({
@@ -17,8 +18,8 @@ export default defineConfig({
         background_color: '#F0F4F5',
         display: 'standalone',
         orientation: 'landscape',
-        start_url: '/',
-        scope: '/',
+        start_url: '/RSIChecklist/',
+        scope: '/RSIChecklist/',
         icons: [
           {
             src: '/icons/icon-192.png',
@@ -36,6 +37,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,mjs,css,html,ico,png,svg,pdf}'],
+        globIgnores: ['**/trauma-reference-document.pdf'],
         globDirectory: 'dist',
         navigateFallback: null,
         runtimeCaching: [
