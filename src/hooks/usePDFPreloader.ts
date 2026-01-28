@@ -15,8 +15,11 @@ export const usePDFPreloader = () => {
 
       for (const guideline of guidelines) {
         try {
+          // Construct full URL with base path for GitHub Pages compatibility
+          const pdfUrl = `${import.meta.env.BASE_URL}${guideline.pdfPath.replace(/^\//, '')}`;
+
           // Fetch PDF and consume response to ensure service worker caches it
-          const response = await fetch(guideline.pdfPath, {
+          const response = await fetch(pdfUrl, {
             cache: 'reload' // Force fresh fetch to ensure caching
           });
 
