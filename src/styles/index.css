@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: Arial, Helvetica, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-nhs-grey antialiased;
+  }
+
+  * {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+@layer components {
+  .touch-button {
+    @apply min-h-touch min-w-touch p-6 rounded-lg font-bold text-touch-xl
+           active:scale-95 transition-transform duration-150
+           focus:outline-none focus:ring-4 focus:ring-nhs-blue/50;
+  }
+
+  .nhs-button-primary {
+    @apply touch-button bg-nhs-blue text-nhs-white
+           hover:bg-nhs-blue/90 active:bg-nhs-blue/80;
+  }
+
+  .nhs-button-secondary {
+    @apply touch-button bg-nhs-white text-nhs-blue border-4 border-nhs-blue
+           hover:bg-nhs-grey active:bg-nhs-grey/80;
+  }
+}
