@@ -20,6 +20,19 @@ export const CategoryView: React.FC = () => {
     navigate(`/pdf/${guideline.id}`);
   };
 
+  // Group guidelines by subcategory
+  const sortedGuidelines = guidelines.sort((a, b) => a.order - b.order);
+  const guidelinesWithoutSubcategory = sortedGuidelines.filter(g => !g.subcategory);
+  const guidelinesBySubcategory = sortedGuidelines.reduce((acc, guideline) => {
+    if (guideline.subcategory) {
+      if (!acc[guideline.subcategory]) {
+        acc[guideline.subcategory] = [];
+      }
+      acc[guideline.subcategory].push(guideline);
+    }
+    return acc;
+  }, {} as Record<string, Guideline[]>);
+
   return (
     <div className="min-h-screen bg-nhs-grey pt-32 pb-12">
       <div className="container mx-auto px-6">
@@ -31,18 +44,34 @@ export const CategoryView: React.FC = () => {
           </p>
         </div>
 
-        {/* Guidelines Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {guidelines
-            .sort((a, b) => a.order - b.order)
-            .map((guideline) => (
+        {/* Guidelines without subcategory */}
+        {guidelinesWithoutSubcategory.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            {guidelinesWithoutSubcategory.map((guideline) => (
               <CategoryButton
                 key={guideline.id}
                 guideline={guideline}
                 onClick={handleGuidelineClick}
               />
             ))}
-        </div>
+          </div>
+        )}
+
+        {/* Subcategorized Guidelines */}
+        {Object.entries(guidelinesBySubcategory).map(([subcategory, subcategoryGuidelines]) => (
+          <div key={subcategory} className="mb-12">
+            <h2 className="text-4xl font-black text-nhs-blue mb-6">{subcategory}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {subcategoryGuidelines.map((guideline) => (
+                <CategoryButton
+                  key={guideline.id}
+                  guideline={guideline}
+                  onClick={handleGuidelineClick}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
 
         {/* Empty State */}
         {guidelines.length === 0 && (

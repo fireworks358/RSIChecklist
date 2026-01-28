@@ -5,6 +5,7 @@ export interface Guideline {
   pdfPath: string;
   description?: string;
   order: number;
+  subcategory?: string;
 }
 
 export interface GuidelineCategory {

@@ -32,6 +32,123 @@ export const adultGuidelines: Guideline[] = [
     pdfPath: '/guidelines/adult/failed-intubation-drill.pdf',
     description: 'Step-by-step protocol for failed intubation scenarios',
     order: 4
+  },
+  {
+    id: 'adult-als-algorithm',
+    title: 'ALS Algorithm 2025',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/Adult ALS algorithm 2025.pdf',
+    description: 'Adult advanced life support algorithm (2025)',
+    order: 5,
+    subcategory: 'Arrest'
+  },
+  {
+    id: 'adult-bradyarrhythmia',
+    title: 'Bradyarrhythmia 2025',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/Adult bradyarrhythmia 2025.pdf',
+    description: 'Management of adult bradyarrhythmias (2025)',
+    order: 6
+  },
+  {
+    id: 'adult-tachyarrhythmia',
+    title: 'Tachyarrhythmia 2025',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/Adult tachyarrhythmia algorithm 2025.pdf',
+    description: 'Management of adult tachyarrhythmias (2025)',
+    order: 7
+  },
+  {
+    id: 'adult-choking',
+    title: 'Choking Algorithm 2025',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/Adult choking algorithm 2025 .pdf',
+    description: 'Adult choking management algorithm (2025)',
+    order: 8,
+    subcategory: 'Arrest'
+  },
+  {
+    id: 'adult-in-hospital',
+    title: 'In Hospital Algorithm 2025',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/Adult in hospital algorithm 2025.pdf',
+    description: 'Adult in-hospital resuscitation algorithm (2025)',
+    order: 9,
+    subcategory: 'Arrest'
+  },
+  {
+    id: 'adult-anaphylaxis',
+    title: 'Anaphylaxis 2021',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/Anaphylaxis algorithm 2021.pdf',
+    description: 'Anaphylaxis management algorithm (2021)',
+    order: 10
+  },
+  {
+    id: 'adult-reversible-causes',
+    title: 'Reversible Causes',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/Reversable causes of cardiac arrest vs5 Jan 2019 12 0370.pdf',
+    description: 'Reversible causes of cardiac arrest (4Hs and 4Ts)',
+    order: 11,
+    subcategory: 'Arrest'
+  },
+  {
+    id: 'adult-special-circumstances',
+    title: 'Special Circumstances',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/Special circumstances Guidelines (2).pdf',
+    description: 'Guidelines for special circumstances during resuscitation',
+    order: 12,
+    subcategory: 'Arrest'
+  },
+  {
+    id: 'adult-massive-haemorrhage',
+    title: 'Massive Haemorrhage',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/Massive Haemorrhage Guideline.pdf',
+    description: 'Management protocol for massive haemorrhage',
+    order: 13
+  },
+  {
+    id: 'adult-critical-care-infusions',
+    title: 'Critical Care Infusions',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/Critical Care Infusions guideline (1).pdf',
+    description: 'Guide to critical care drug infusions',
+    order: 14
+  },
+  {
+    id: 'adult-transfer-team',
+    title: 'Critical Care Transfer',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/Critical Care Transfer Team.pdf',
+    description: 'Critical care transfer team guidelines',
+    order: 15
+  },
+  {
+    id: 'adult-hfno',
+    title: 'High Flow Nasal Oxygen',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/High Flow Nasal Oxygen (HFNO)  in Theatres.pdf',
+    description: 'HFNO use in operating theatres',
+    order: 16
+  },
+  {
+    id: 'adult-ga-checklist',
+    title: 'GA Checklist',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/GA Checklist.pdf',
+    description: 'General anaesthesia checklist',
+    order: 17
+  },
+  {
+    id: 'adult-equipment-locations',
+    title: 'Emergency Equipment',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/Emergency Equipment locations.pdf',
+    description: 'Emergency equipment locations reference',
+    order: 18
   }
 ];
 
@@ -90,7 +207,8 @@ export const paediatricGuidelines: Guideline[] = [
     category: 'paediatric',
     pdfPath: '/guidelines/paediatric/cardiac-arrest-als.pdf',
     description: 'Advanced life support protocol for paediatric cardiac arrest',
-    order: 7
+    order: 7,
+    subcategory: 'Arrest'
   },
   {
     id: 'paed-rosc-management',
@@ -98,7 +216,8 @@ export const paediatricGuidelines: Guideline[] = [
     category: 'paediatric',
     pdfPath: '/guidelines/paediatric/rosc-management.pdf',
     description: 'Management protocol following return of spontaneous circulation',
-    order: 8
+    order: 8,
+    subcategory: 'Arrest'
   },
   {
     id: 'paed-anaphylaxis',
@@ -251,6 +370,33 @@ export const paediatricGuidelines: Guideline[] = [
     pdfPath: '/guidelines/paediatric/picu-handover-checklist.pdf',
     description: 'Structured handover checklist for PICU patients',
     order: 27
+  },
+  {
+    id: 'paed-als-algorithm',
+    title: 'PALS Algorithm 2025',
+    category: 'paediatric',
+    pdfPath: '/guidelines/paediatric/Paediatric advanced life support algorithm 2025.pdf',
+    description: 'Paediatric advanced life support algorithm (2025)',
+    order: 28,
+    subcategory: 'Arrest'
+  },
+  {
+    id: 'paed-newborn-life-support',
+    title: 'Newborn Life Support 2025',
+    category: 'paediatric',
+    pdfPath: '/guidelines/paediatric/Newborn life support algorithm 2025.pdf',
+    description: 'Newborn life support algorithm (2025)',
+    order: 29,
+    subcategory: 'Arrest'
+  },
+  {
+    id: 'paed-advanced-newborn-resus',
+    title: 'Advanced Newborn Resus',
+    category: 'paediatric',
+    pdfPath: '/guidelines/paediatric/Advanced resuscitation of the newborn infant algorithm 2025_0.pdf',
+    description: 'Advanced resuscitation of the newborn infant (2025)',
+    order: 30,
+    subcategory: 'Arrest'
   }
 ];
 
