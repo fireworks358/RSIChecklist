@@ -25,6 +25,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [scale, setScale] = useState<number>(1.5);
+  const [isSideBySide, setIsSideBySide] = useState<boolean>(false);
   const isOnline = useOfflineStatus();
 
   useEffect(() => {
@@ -69,11 +70,40 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
   };
 
   const goToPrevPage = () => {
-    setPageNumber(prev => Math.max(prev - 1, 1));
+    const step = isSideBySide ? 2 : 1;
+    setPageNumber(prev => Math.max(prev - step, 1));
   };
 
   const goToNextPage = () => {
-    setPageNumber(prev => Math.min(prev + 1, numPages));
+    const step = isSideBySide ? 2 : 1;
+    setPageNumber(prev => Math.min(prev + step, numPages));
+  };
+
+  const skipOnePage = (direction: 'forward' | 'back') => {
+    if (direction === 'forward') {
+      setPageNumber(prev => Math.min(prev + 1, numPages));
+    } else {
+      setPageNumber(prev => Math.max(prev - 1, 1));
+    }
+  };
+
+  const toggleSideBySide = () => {
+    setIsSideBySide(prev => {
+      const newValue = !prev;
+      // When switching to side-by-side, reduce scale if needed
+      if (newValue && scale > 1.0) {
+        setScale(1.0);
+      }
+      // When switching back to single, restore default scale
+      if (!newValue && scale < 1.5) {
+        setScale(1.5);
+      }
+      return newValue;
+    });
+    // Adjust page number to odd page when switching to side-by-side
+    if (!isSideBySide && pageNumber % 2 === 0) {
+      setPageNumber(prev => Math.max(prev - 1, 1));
+    }
   };
 
   const zoomIn = () => {
@@ -159,8 +189,33 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
             >
               Previous
             </button>
-            <span className="text-lg font-bold text-white">
-              Page {pageNumber} of {numPages}
+            {isSideBySide && (
+              <>
+                <button
+                  onClick={() => skipOnePage('back')}
+                  disabled={pageNumber <= 1}
+                  className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold disabled:opacity-30
+                           disabled:cursor-not-allowed transition-colors active:scale-95 min-h-touch"
+                  title="Skip back one page"
+                >
+                  ◄
+                </button>
+                <button
+                  onClick={() => skipOnePage('forward')}
+                  disabled={pageNumber >= numPages}
+                  className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold disabled:opacity-30
+                           disabled:cursor-not-allowed transition-colors active:scale-95 min-h-touch"
+                  title="Skip forward one page"
+                >
+                  ►
+                </button>
+              </>
+            )}
+            <span className="text-lg font-bold text-white whitespace-nowrap">
+              {isSideBySide && pageNumber < numPages
+                ? `Pages ${pageNumber}-${Math.min(pageNumber + 1, numPages)} of ${numPages}`
+                : `Page ${pageNumber} of ${numPages}`
+              }
             </span>
             <button
               onClick={goToNextPage}
@@ -172,8 +227,17 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
             </button>
           </div>
 
-          {/* Right side: Zoom controls and Timer */}
+          {/* Right side: Zoom controls, View toggle, and Timer */}
           <div className="flex items-center gap-4">
+            <button
+              onClick={toggleSideBySide}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
+                       transition-colors active:scale-95 min-h-touch"
+              title={isSideBySide ? "Switch to single page" : "Switch to side-by-side"}
+            >
+              {isSideBySide ? "Single" : "Side-by-Side"}
+            </button>
+            <div className="h-8 w-px bg-white/30"></div>
             <button
               onClick={zoomOut}
               className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
@@ -189,7 +253,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
             >
               Zoom In
             </button>
-            <div className="h-8 w-px bg-white/30 mx-2"></div>
+            <div className="h-8 w-px bg-white/30"></div>
             <Stopwatch />
           </div>
         </div>
@@ -197,22 +261,32 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
 
       {/* PDF Document */}
       <div className="flex-1 overflow-auto p-6 pt-24">
-        <div className="flex justify-center">
+        <div className="flex flex-row flex-nowrap justify-center items-start gap-4 min-w-full">
           {loading && <PDFLoadingState />}
           <Document
             file={fullPdfUrl}
             onLoadSuccess={onDocumentLoadSuccess}
             onLoadError={onDocumentLoadError}
             loading={<PDFLoadingState />}
-            className="shadow-2xl"
           >
-            <Page
-              pageNumber={pageNumber}
-              scale={scale}
-              renderTextLayer={true}
-              renderAnnotationLayer={true}
-              className="bg-white"
-            />
+            <div className="flex flex-row flex-nowrap gap-4">
+              <Page
+                pageNumber={pageNumber}
+                scale={scale}
+                renderTextLayer={true}
+                renderAnnotationLayer={true}
+                className="bg-white shadow-2xl"
+              />
+              {isSideBySide && pageNumber < numPages && (
+                <Page
+                  pageNumber={pageNumber + 1}
+                  scale={scale}
+                  renderTextLayer={true}
+                  renderAnnotationLayer={true}
+                  className="bg-white shadow-2xl"
+                />
+              )}
+            </div>
           </Document>
         </div>
       </div>
