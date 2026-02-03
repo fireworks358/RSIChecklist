@@ -26,6 +26,8 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
   const [error, setError] = useState<string | null>(null);
   const [scale, setScale] = useState<number>(1.5);
   const [isSideBySide, setIsSideBySide] = useState<boolean>(false);
+  const [initialPinchDistance, setInitialPinchDistance] = useState<number | null>(null);
+  const [initialScale, setInitialScale] = useState<number>(1.5);
   const isOnline = useOfflineStatus();
 
   useEffect(() => {
@@ -114,6 +116,37 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
     setScale(prev => Math.max(prev - 0.25, 0.5));
   };
 
+  // Calculate distance between two touch points
+  const getTouchDistance = (touches: React.TouchList): number => {
+    const touch1 = touches[0];
+    const touch2 = touches[1];
+    const dx = touch2.clientX - touch1.clientX;
+    const dy = touch2.clientY - touch1.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  // Handle pinch-to-zoom
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const distance = getTouchDistance(e.touches);
+      setInitialPinchDistance(distance);
+      setInitialScale(scale);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && initialPinchDistance !== null) {
+      const distance = getTouchDistance(e.touches);
+      const scaleChange = distance / initialPinchDistance;
+      const newScale = Math.max(0.5, Math.min(3, initialScale * scaleChange));
+      setScale(newScale);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setInitialPinchDistance(null);
+  };
+
   if (error) {
     return (
       <div className="flex items-center justify-center h-full bg-nhs-grey p-6">
@@ -152,27 +185,27 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
     <div className="flex flex-col h-full bg-nhs-grey relative">
       {/* Floating Offline Status Badge */}
       {!isOnline && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-nhs-warm-yellow text-nhs-black
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 bg-nhs-warm-yellow text-nhs-black
                        px-4 py-2 rounded-full shadow-lg font-bold text-sm animate-pulse">
           ⚠️ Offline Mode
         </div>
       )}
 
-      {/* PDF Controls - Overlaying navigation area */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-nhs-blue/95 backdrop-blur-sm text-white shadow-lg">
-        <div className="flex items-center justify-between px-6 py-4">
-          {/* Left side: Back, Home, and Page controls */}
-          <div className="flex items-center gap-3">
+      {/* PDF Controls */}
+      <div className="bg-nhs-blue/95 backdrop-blur-sm text-white shadow-lg z-40 shrink-0">
+        <div className="flex items-center flex-wrap gap-2 px-4 py-3">
+          {/* Navigation */}
+          <div className="flex items-center gap-2">
             <button
               onClick={() => navigate(-1)}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
+              className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
                        transition-colors active:scale-95 min-h-touch"
             >
               ← Back
             </button>
             <button
               onClick={() => navigate('/')}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
+              className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
                        transition-colors active:scale-95 min-h-touch flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,11 +213,14 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
               </svg>
               Home
             </button>
-            <div className="h-8 w-px bg-white/30 mx-2"></div>
+          </div>
+          <div className="h-8 w-px bg-white/30"></div>
+          {/* Page controls */}
+          <div className="flex items-center gap-2">
             <button
               onClick={goToPrevPage}
               disabled={pageNumber <= 1}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold disabled:opacity-30
+              className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold disabled:opacity-30
                        disabled:cursor-not-allowed transition-colors active:scale-95 min-h-touch"
             >
               Previous
@@ -220,18 +256,18 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
             <button
               onClick={goToNextPage}
               disabled={pageNumber >= numPages}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold disabled:opacity-30
+              className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold disabled:opacity-30
                        disabled:cursor-not-allowed transition-colors active:scale-95 min-h-touch"
             >
               Next
             </button>
           </div>
-
-          {/* Right side: Zoom controls, View toggle, and Timer */}
-          <div className="flex items-center gap-4">
+          <div className="h-8 w-px bg-white/30"></div>
+          {/* View and zoom controls */}
+          <div className="flex items-center gap-2">
             <button
               onClick={toggleSideBySide}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
+              className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
                        transition-colors active:scale-95 min-h-touch"
               title={isSideBySide ? "Switch to single page" : "Switch to side-by-side"}
             >
@@ -240,27 +276,32 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
             <div className="h-8 w-px bg-white/30"></div>
             <button
               onClick={zoomOut}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
+              className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
                        transition-colors active:scale-95 min-h-touch"
             >
-              Zoom Out
+              −
             </button>
             <span className="text-lg font-bold text-white">{Math.round(scale * 100)}%</span>
             <button
               onClick={zoomIn}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
+              className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
                        transition-colors active:scale-95 min-h-touch"
             >
-              Zoom In
+              +
             </button>
-            <div className="h-8 w-px bg-white/30"></div>
-            <Stopwatch />
           </div>
+          <div className="h-8 w-px bg-white/30"></div>
+          <Stopwatch />
         </div>
       </div>
 
       {/* PDF Document */}
-      <div className="flex-1 overflow-auto p-6 pt-24">
+      <div
+        className="flex-1 overflow-auto p-6"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="flex flex-row flex-nowrap justify-center items-start gap-4 min-w-full">
           {loading && <PDFLoadingState />}
           <Document

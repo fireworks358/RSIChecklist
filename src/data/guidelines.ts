@@ -397,6 +397,14 @@ export const paediatricGuidelines: Guideline[] = [
     description: 'Advanced resuscitation of the newborn infant (2025)',
     order: 30,
     subcategory: 'Arrest'
+  },
+  {
+    id: 'paed-pdch',
+    title: 'PDCH',
+    category: 'paediatric',
+    pdfPath: '/guidelines/paediatric/PDCH.pdf',
+    description: 'PDCH guideline for paediatric patients',
+    order: 31
   }
 ];
 
