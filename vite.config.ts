@@ -81,7 +81,8 @@ export default defineConfig({
     })
   ],
   build: {
-    target: 'esnext',
+    // Safari 15 ≈ every iPad still receiving updates; 'esnext' white-screened older iPadOS
+    target: 'safari15',
     sourcemap: true
   },
   server: {
