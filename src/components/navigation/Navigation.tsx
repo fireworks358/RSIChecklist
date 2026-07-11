@@ -29,7 +29,7 @@ export const Navigation: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-6">
-          <h1 className="text-2xl font-black">Emergency Airway Portal</h1>
+          <h1 className="text-2xl portrait:text-lg font-black">Emergency Airway Portal</h1>
           <Stopwatch />
         </div>
       </div>

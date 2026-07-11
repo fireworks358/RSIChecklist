@@ -38,8 +38,8 @@ export const CategoryView: React.FC = () => {
       <div className="container mx-auto px-6">
         {/* Category Header */}
         <div className="mb-12">
-          <h1 className="text-5xl font-black text-nhs-blue mb-4">{title}</h1>
-          <p className="text-2xl text-nhs-dark-grey">
+          <h1 className="text-5xl portrait:text-3xl font-black text-nhs-blue mb-4">{title}</h1>
+          <p className="text-2xl portrait:text-lg text-nhs-dark-grey">
             Select a guideline to view
           </p>
         </div>
@@ -60,7 +60,7 @@ export const CategoryView: React.FC = () => {
         {/* Subcategorized Guidelines */}
         {Object.entries(guidelinesBySubcategory).map(([subcategory, subcategoryGuidelines]) => (
           <div key={subcategory} className="mb-12">
-            <h2 className="text-4xl font-black text-nhs-blue mb-6">{subcategory}</h2>
+            <h2 className="text-4xl portrait:text-2xl font-black text-nhs-blue mb-6">{subcategory}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {subcategoryGuidelines.map((guideline) => (
                 <CategoryButton

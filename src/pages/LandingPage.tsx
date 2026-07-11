@@ -12,8 +12,8 @@ export const LandingPage: React.FC = () => {
     <div className="min-h-screen bg-nhs-grey flex flex-col">
       {/* Header */}
       <header className="bg-nhs-blue text-white py-8 px-6 shadow-lg">
-        <h1 className="text-5xl font-black text-center">Emergency Airway Portal</h1>
-        <p className="text-2xl text-center mt-4">Clinical Guidelines</p>
+        <h1 className="text-5xl portrait:text-3xl font-black text-center">Emergency Airway Portal</h1>
+        <p className="text-2xl portrait:text-lg text-center mt-4">Clinical Guidelines</p>
 
         {/* Offline Status Banner */}
         {!isOnline && (
@@ -57,10 +57,10 @@ export const LandingPage: React.FC = () => {
                      transition-all duration-150 shadow-2xl
                      flex flex-col items-center justify-center gap-6"
           >
-            <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-32 h-32 portrait:w-16 portrait:h-16" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
             </svg>
-            <span className="text-6xl font-black uppercase tracking-wide">
+            <span className="text-6xl portrait:text-3xl font-black uppercase tracking-wide">
               Adult<br />Guidelines
             </span>
           </button>
@@ -75,10 +75,10 @@ export const LandingPage: React.FC = () => {
                      transition-all duration-150 shadow-2xl
                      flex flex-col items-center justify-center gap-6"
           >
-            <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-32 h-32 portrait:w-16 portrait:h-16" fill="currentColor" viewBox="0 0 20 20">
               <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
             </svg>
-            <span className="text-6xl font-black uppercase tracking-wide">
+            <span className="text-6xl portrait:text-3xl font-black uppercase tracking-wide">
               Paediatric<br />Guidelines
             </span>
           </button>

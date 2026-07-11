@@ -12,11 +12,11 @@ export const CategoryButton: React.FC<CategoryButtonProps> = ({ guideline, onCli
       onClick={() => onClick(guideline)}
       className="nhs-button-secondary w-full h-touch-xl flex flex-col items-center justify-center gap-2 group"
     >
-      <span className="text-touch-2xl font-black text-nhs-blue group-active:scale-95 transition-transform">
+      <span className="text-touch-2xl portrait:text-2xl font-black text-nhs-blue group-active:scale-95 transition-transform">
         {guideline.title}
       </span>
       {guideline.description && (
-        <span className="text-lg text-nhs-dark-grey">
+        <span className="text-lg portrait:text-base text-nhs-dark-grey">
           {guideline.description}
         </span>
       )}

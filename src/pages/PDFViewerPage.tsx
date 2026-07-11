@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getGuidelineById } from '../data/guidelines';
 import { supportsModuleWorkers } from '../utils/browserSupport';
@@ -13,13 +13,26 @@ const PDFViewer = lazy(() =>
 export const PDFViewerPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const guideline = id ? getGuidelineById(id) : undefined;
+
+  // The in-app PDF viewer (react-pdf/pdfjs-dist) needs module Web Workers,
+  // which don't exist on older iPads (e.g. iOS 11-14 Safari). Those devices
+  // just get sent straight to the PDF file, which Safari renders natively.
+  const canUsePdfViewer = supportsModuleWorkers();
+  const fullPdfUrl = guideline
+    ? `${import.meta.env.BASE_URL}${guideline.pdfPath.replace(/^\//, '')}`
+    : null;
+
+  useEffect(() => {
+    if (fullPdfUrl && !canUsePdfViewer) {
+      window.location.replace(fullPdfUrl);
+    }
+  }, [canUsePdfViewer, fullPdfUrl]);
 
   if (!id) {
     navigate('/');
     return null;
   }
-
-  const guideline = getGuidelineById(id);
 
   if (!guideline) {
     return (
@@ -37,41 +50,8 @@ export const PDFViewerPage: React.FC = () => {
     );
   }
 
-  // The in-app PDF viewer (react-pdf/pdfjs-dist) needs module Web Workers,
-  // which don't exist on older iPads (e.g. iOS 11-14 Safari). Those devices
-  // fall back to opening the PDF directly, which Safari renders natively.
-  if (!supportsModuleWorkers()) {
-    const fullPdfUrl = `${import.meta.env.BASE_URL}${guideline.pdfPath.replace(/^\//, '')}`;
-    return (
-      <div
-        className="bg-nhs-grey flex items-center justify-center pt-32 px-6"
-        style={{ minHeight: 'var(--app-height, 100dvh)' }}
-      >
-        <div className="text-center max-w-2xl bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-nhs-blue mb-4">{guideline.title}</h2>
-          <p className="text-lg text-nhs-black mb-6">
-            Your device's browser is too old for the in-app PDF viewer, so this guideline
-            will open in Safari's own PDF viewer instead.
-          </p>
-          <div className="flex gap-4 justify-center">
-            <button
-              onClick={() => navigate('/')}
-              className="px-6 py-3 bg-nhs-grey text-nhs-black rounded-lg font-bold hover:bg-nhs-grey/80 active:scale-95 min-h-touch"
-            >
-              Go Back
-            </button>
-            <a
-              href={fullPdfUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="nhs-button-primary"
-            >
-              Open PDF
-            </a>
-          </div>
-        </div>
-      </div>
-    );
+  if (!canUsePdfViewer) {
+    return null;
   }
 
   return (
