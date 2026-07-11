@@ -192,7 +192,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
       )}
 
       {/* PDF Controls */}
-      <div className="bg-nhs-blue/95 backdrop-blur-sm text-white shadow-lg z-40 shrink-0">
+      <div className="bg-nhs-blue/95 backdrop-blur-sm text-white shadow-lg z-40 shrink-0 touch-none">
         <div className="flex items-center flex-wrap gap-2 px-4 py-3">
           {/* Navigation */}
           <div className="flex items-center gap-2">
@@ -298,6 +298,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
       {/* PDF Document */}
       <div
         className="flex-1 overflow-auto p-6"
+        style={{ touchAction: 'pan-x pan-y' }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
