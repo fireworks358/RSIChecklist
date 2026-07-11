@@ -59,6 +59,24 @@ npm run preview
 
 Place the PDF in `public/guidelines/adult/` or `public/guidelines/paediatric/`, then register it in [src/data/guidelines.ts](src/data/guidelines.ts) with the new guideline metadata.
 
+If you add/rename/remove a PDF, also update the matching entry in [generate-legacy-portal.cjs](generate-legacy-portal.cjs) and re-run `node generate-legacy-portal.cjs` (see below).
+
+## Legacy Portal (old iPads, iOS 11+)
+
+`public/legacy-portal/` is a second, minimal product for hospital iPads too old to run the main PWA reliably (iOS 11 Safari has limited/buggy Service Worker support and can't run the modern PDF.js viewer). It's plain HTML/CSS with **no JavaScript, no build step, and no service worker** — just a landing page with Adult/Paediatric tiles that link straight to the PDFs, which iOS Safari opens in its native viewer.
+
+It's generated (not hand-edited) from a metadata list in [generate-legacy-portal.cjs](generate-legacy-portal.cjs) that mirrors `src/data/guidelines.ts`. To regenerate after changing guidelines:
+
+```bash
+node generate-legacy-portal.cjs
+```
+
+Because it lives under `public/`, Vite copies it into `dist/legacy-portal/` unmodified during `npm run build`, so it deploys automatically with the rest of the site to:
+
+```
+https://fireworks358.github.io/RSIChecklist/legacy-portal/
+```
+
 ## NHS Branding
 
 The application follows NHS Digital Service Manual guidelines:
