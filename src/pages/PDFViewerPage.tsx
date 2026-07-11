@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getGuidelineById } from '../data/guidelines';
 import { supportsModuleWorkers } from '../utils/browserSupport';
@@ -17,17 +17,14 @@ export const PDFViewerPage: React.FC = () => {
 
   // The in-app PDF viewer (react-pdf/pdfjs-dist) needs module Web Workers,
   // which don't exist on older iPads (e.g. iOS 11-14 Safari). Those devices
-  // just get sent straight to the PDF file, which Safari renders natively.
+  // get Safari's native PDF renderer instead, via an iframe rather than a
+  // full-page navigation — as an installed home-screen app there's no
+  // Safari chrome (no back button, no address bar) to return with, so
+  // navigating away would strand the user on the raw PDF with no way back.
   const canUsePdfViewer = supportsModuleWorkers();
   const fullPdfUrl = guideline
     ? `${import.meta.env.BASE_URL}${guideline.pdfPath.replace(/^\//, '')}`
     : null;
-
-  useEffect(() => {
-    if (fullPdfUrl && !canUsePdfViewer) {
-      window.location.replace(fullPdfUrl);
-    }
-  }, [canUsePdfViewer, fullPdfUrl]);
 
   if (!id) {
     navigate('/');
@@ -51,7 +48,27 @@ export const PDFViewerPage: React.FC = () => {
   }
 
   if (!canUsePdfViewer) {
-    return null;
+    return (
+      <div className="flex flex-col bg-nhs-grey" style={{ height: 'var(--app-height, 100dvh)' }}>
+        <div className="bg-nhs-blue text-white shadow-lg z-40 shrink-0 flex items-center gap-2 px-4 py-3">
+          <button
+            onClick={() => navigate(-1)}
+            className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
+                     transition-colors active:scale-95 min-h-touch"
+          >
+            ← Back
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
+                     transition-colors active:scale-95 min-h-touch"
+          >
+            Home
+          </button>
+        </div>
+        <iframe src={fullPdfUrl ?? undefined} title={guideline.title} className="flex-1 w-full border-0" />
+      </div>
+    );
   }
 
   return (
