@@ -10,28 +10,12 @@ export const adultGuidelines: Guideline[] = [
     order: 1
   },
   {
-    id: 'adult-difficult-airway',
-    title: 'Difficult Airway Algorithm',
-    category: 'adult',
-    pdfPath: '/guidelines/adult/difficult-airway-algorithm.pdf',
-    description: 'Management algorithm for difficult adult airways',
-    order: 2
-  },
-  {
     id: 'adult-cico-algorithm',
     title: 'CICO Algorithm',
     category: 'adult',
     pdfPath: '/guidelines/adult/cico-algorithm.pdf',
     description: 'Can\'t Intubate, Can\'t Oxygenate emergency protocol',
     order: 3
-  },
-  {
-    id: 'adult-failed-intubation',
-    title: 'Failed Intubation Drill',
-    category: 'adult',
-    pdfPath: '/guidelines/adult/failed-intubation-drill.pdf',
-    description: 'Step-by-step protocol for failed intubation scenarios',
-    order: 4
   },
   {
     id: 'adult-als-algorithm',
@@ -160,30 +144,6 @@ export const paediatricGuidelines: Guideline[] = [
     pdfPath: '/guidelines/paediatric/rsi-checklist.pdf',
     description: 'Rapid Sequence Intubation checklist for paediatric patients',
     order: 1
-  },
-  {
-    id: 'paed-difficult-airway',
-    title: 'Difficult Airway Algorithm',
-    category: 'paediatric',
-    pdfPath: '/guidelines/paediatric/difficult-airway-algorithm.pdf',
-    description: 'Management algorithm for difficult paediatric airways',
-    order: 2
-  },
-  {
-    id: 'paed-cico-algorithm',
-    title: 'CICO Algorithm',
-    category: 'paediatric',
-    pdfPath: '/guidelines/paediatric/cico-algorithm.pdf',
-    description: 'Can\'t Intubate, Can\'t Oxygenate emergency protocol',
-    order: 3
-  },
-  {
-    id: 'paed-failed-intubation',
-    title: 'Failed Intubation Drill',
-    category: 'paediatric',
-    pdfPath: '/guidelines/paediatric/failed-intubation-drill.pdf',
-    description: 'Step-by-step protocol for failed intubation scenarios',
-    order: 4
   },
   {
     id: 'paed-intubation-checklist',

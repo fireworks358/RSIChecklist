@@ -27,13 +27,15 @@ export const PDFViewerPage: React.FC = () => {
     : null;
 
   // Pinch-zoom is a single viewport-wide transform, so a gesture that starts
-  // over the iframe would otherwise scale the header/back-button chrome too.
-  // Locking the page's own scale here (only while the native-iframe fallback
-  // is shown) stops that, while Safari's built-in PDF renderer still handles
-  // pinch-zoom of the PDF content itself internally, unaffected by this meta
-  // tag.
+  // over the PDF would otherwise scale the header/back-button chrome too.
+  // Locking the page's own scale here stops that. In the native-iframe
+  // fallback, Safari's built-in PDF renderer still handles pinch-zoom of the
+  // PDF content itself internally, unaffected by this meta tag. In the
+  // in-app viewer, pinch-zoom is instead handled entirely by the component's
+  // own touch handlers adjusting render scale, so native page zoom is never
+  // needed there either.
   useEffect(() => {
-    if (canUsePdfViewer || !guideline) return;
+    if (!guideline) return;
     const viewport = document.querySelector('meta[name="viewport"]');
     const previousContent = viewport?.getAttribute('content') ?? null;
     viewport?.setAttribute(
@@ -43,7 +45,7 @@ export const PDFViewerPage: React.FC = () => {
     return () => {
       if (previousContent !== null) viewport?.setAttribute('content', previousContent);
     };
-  }, [canUsePdfViewer, guideline]);
+  }, [guideline]);
 
   if (!id) {
     navigate('/');

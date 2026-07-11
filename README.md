@@ -55,27 +55,9 @@ Preview the production build:
 npm run preview
 ```
 
-## Adding Your Clinical Guidelines
+## Adding Clinical Guidelines
 
-### Required PDF Files
-
-Replace the placeholder PDFs in these folders with your actual clinical guidelines:
-
-**Adult Guidelines** (`public/guidelines/adult/`):
-1. `rsi-checklist.pdf`
-2. `difficult-airway-algorithm.pdf`
-3. `cico-algorithm.pdf`
-4. `failed-intubation-drill.pdf`
-
-**Paediatric Guidelines** (`public/guidelines/paediatric/`):
-1. `rsi-checklist.pdf`
-2. `difficult-airway-algorithm.pdf`
-3. `cico-algorithm.pdf`
-4. `failed-intubation-drill.pdf`
-
-### Adding New Guidelines
-
-To add more guidelines, update [src/data/guidelines.ts](src/data/guidelines.ts) with the new guideline metadata.
+Place the PDF in `public/guidelines/adult/` or `public/guidelines/paediatric/`, then register it in [src/data/guidelines.ts](src/data/guidelines.ts) with the new guideline metadata.
 
 ## NHS Branding
 
@@ -107,8 +89,7 @@ To verify offline functionality:
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
-- `node generate-pdfs.cjs` - Regenerate placeholder PDFs
-- `node generate-icons.cjs` - Regenerate placeholder icons
+- `node generate-icons.cjs` - Regenerate app icons
 
 ## Deployment
 
