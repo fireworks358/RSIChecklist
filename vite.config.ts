@@ -47,7 +47,15 @@ export default defineConfig({
         globPatterns: ['**/*.{js,mjs,css,html,ico,png,svg,pdf}'],
         globIgnores: ['**/trauma-reference-document.pdf'],
         globDirectory: 'dist',
-        navigateFallback: null,
+        // Once the service worker is installed, it intercepts navigations
+        // before they ever reach GitHub Pages. Without a fallback, a
+        // navigation to an app route (e.g. after iOS Safari's swipe-back
+        // gesture reloads an evicted page) has no exact cache match and
+        // fails instead of re-rendering the app shell. PDFs are excluded
+        // since opening one is a real navigation to a file that must be
+        // served as-is, not replaced with the app shell.
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/\.pdf$/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
