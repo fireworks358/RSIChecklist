@@ -76,7 +76,8 @@ function encodeHref(file) {
   return file.split('/').map(encodeURIComponent).join('/');
 }
 
-function page(title, bodyHtml, backLink) {
+function page(title, bodyHtml, backLink, options) {
+  options = options || {};
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,6 +85,12 @@ function page(title, bodyHtml, backLink) {
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
 <title>${escapeHtml(title)}</title>
 <link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#005eb8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Airway Guidelines">
+<link rel="apple-touch-icon" href="../icons/icon-192.png">
 </head>
 <body>
 <header class="topbar">
@@ -91,11 +98,23 @@ ${backLink ? `<a class="back" href="${backLink}">&larr; Back</a>` : ''}
 <h1>${escapeHtml(title)}</h1>
 </header>
 <main>
-${bodyHtml}
+${options.search ? `<div class="search-wrap">
+  <label class="search-label" for="search-input">Search guidelines</label>
+  <input type="search" id="search-input" class="search-input" placeholder="Type a name or keyword&hellip;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+</div>
+<p id="search-empty" class="search-empty" style="display:none;">No guidelines match your search.</p>
+` : ''}${bodyHtml}
 </main>
 <footer>
 <p>Emergency Airway Portal &mdash; offline directory for hospital tablets</p>
 </footer>
+${options.search ? '<script src="search.js" defer></script>\n' : ''}<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+</script>
 </body>
 </html>
 `;
@@ -149,12 +168,12 @@ fs.writeFileSync(
 
 fs.writeFileSync(
   path.join(OUT_DIR, 'adult.html'),
-  page('Adult Guidelines', renderList(adultGuidelines, 'adult'), 'index.html')
+  page('Adult Guidelines', renderList(adultGuidelines, 'adult'), 'index.html', { search: true })
 );
 
 fs.writeFileSync(
   path.join(OUT_DIR, 'paediatric.html'),
-  page('Paediatric Guidelines', renderList(paediatricGuidelines, 'paediatric'), 'index.html')
+  page('Paediatric Guidelines', renderList(paediatricGuidelines, 'paediatric'), 'index.html', { search: true })
 );
 
 console.log(`Generated ${adultGuidelines.length} adult and ${paediatricGuidelines.length} paediatric entries into ${OUT_DIR}`);

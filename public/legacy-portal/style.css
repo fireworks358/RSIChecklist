@@ -127,6 +127,43 @@ footer {
   }
 }
 
+/* Search */
+
+.search-wrap {
+  margin-bottom: 20px;
+}
+
+.search-label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  color: #4c6272;
+  margin-bottom: 6px;
+}
+
+.search-input {
+  display: block;
+  width: 100%;
+  font-size: 20px;
+  padding: 14px 16px;
+  border: 2px solid #d8dde0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search-input:focus {
+  border-color: #005eb8;
+  outline: none;
+}
+
+.search-empty {
+  font-size: 18px;
+  color: #4c6272;
+  padding: 12px 0;
+}
+
 /* Document list pages */
 
 .group-heading {

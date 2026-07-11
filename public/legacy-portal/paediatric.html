@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
 <title>Paediatric Guidelines</title>
 <link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#005eb8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Airway Guidelines">
+<link rel="apple-touch-icon" href="../icons/icon-192.png">
 </head>
 <body>
 <header class="topbar">
@@ -12,6 +18,11 @@
 <h1>Paediatric Guidelines</h1>
 </header>
 <main>
+<div class="search-wrap">
+  <label class="search-label" for="search-input">Search guidelines</label>
+  <input type="search" id="search-input" class="search-input" placeholder="Type a name or keyword&hellip;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+</div>
+<p id="search-empty" class="search-empty" style="display:none;">No guidelines match your search.</p>
 <ul class="doc-list">
 <li><a class="doc-link" href="../guidelines/paediatric/rsi-checklist.pdf">
   <span class="doc-title">RSI Checklist</span>
@@ -134,5 +145,13 @@
 <footer>
 <p>Emergency Airway Portal &mdash; offline directory for hospital tablets</p>
 </footer>
+<script src="search.js" defer></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+</script>
 </body>
 </html>

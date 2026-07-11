@@ -45,7 +45,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,mjs,css,html,ico,png,svg,pdf}'],
-        globIgnores: ['**/trauma-reference-document.pdf'],
+        globIgnores: ['**/trauma-reference-document.pdf', 'legacy-portal/**'],
         globDirectory: 'dist',
         // Once the service worker is installed, it intercepts navigations
         // before they ever reach GitHub Pages. Without a fallback, a
@@ -53,9 +53,14 @@ export default defineConfig({
         // gesture reloads an evicted page) has no exact cache match and
         // fails instead of re-rendering the app shell. PDFs are excluded
         // since opening one is a real navigation to a file that must be
-        // served as-is, not replaced with the app shell.
+        // served as-is, not replaced with the app shell. legacy-portal is
+        // excluded too: it's a separate PWA with its own service worker
+        // and app shell, and on a device that already has this (root-scoped)
+        // worker active, falling back to *this* app's index.html would
+        // hijack the legacy portal's very first load before its own,
+        // more specifically-scoped worker gets a chance to take over.
         navigateFallback: 'index.html',
-        navigateFallbackDenylist: [/\.pdf$/],
+        navigateFallbackDenylist: [/\.pdf$/, /\/legacy-portal\//],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

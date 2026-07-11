@@ -1,0 +1,15 @@
+{
+  "name": "Emergency Airway Guidelines",
+  "short_name": "Airway Guidelines",
+  "description": "Offline directory of adult and paediatric emergency airway guidelines",
+  "start_url": "/RSIChecklist/legacy-portal/index.html",
+  "scope": "/RSIChecklist/legacy-portal/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f0f4f5",
+  "theme_color": "#005eb8",
+  "icons": [
+    { "src": "/RSIChecklist/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/RSIChecklist/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

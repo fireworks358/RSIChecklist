@@ -63,7 +63,12 @@ If you add/rename/remove a PDF, also update the matching entry in [generate-lega
 
 ## Legacy Portal (old iPads, iOS 11+)
 
-`public/legacy-portal/` is a second, minimal product for hospital iPads too old to run the main PWA reliably (iOS 11 Safari has limited/buggy Service Worker support and can't run the modern PDF.js viewer). It's plain HTML/CSS with **no JavaScript, no build step, and no service worker** — just a landing page with Adult/Paediatric tiles that link straight to the PDFs, which iOS Safari opens in its native viewer.
+`public/legacy-portal/` is a second, minimal product for hospital iPads too old to run the main PWA reliably (very old iOS Safari has limited/buggy Service Worker support and can't run the modern PDF.js viewer). Content-wise it's still just plain HTML/CSS links to PDFs, which iOS Safari opens in its native viewer — but it's also its own installable PWA with client-side search, kept deliberately separate from the main app:
+
+- **Its own service worker** ([public/legacy-portal/sw.js](public/legacy-portal/sw.js)), hand-written (no Workbox), scoped only to `/legacy-portal/`. It precaches the small app shell on install and lazily caches PDFs the first time each one is opened — the ~40MB paediatric PDF set (one file alone is ~30MB) is never bulk-precached, so install can't hang or fail on old hardware.
+- **Its own manifest** ([public/legacy-portal/manifest.json](public/legacy-portal/manifest.json)) plus `apple-mobile-web-app-*` meta tags in every page head, so "Add to Home Screen" works both via the manifest (modern Safari/Chrome) and the legacy Apple meta tags (old iOS).
+- **Client-side search** ([public/legacy-portal/search.js](public/legacy-portal/search.js)) on the Adult/Paediatric list pages — plain ES5, filters by title/description as you type. Progressive enhancement: the full list is already in the HTML, so if the script fails to load the page still works, just without filtering.
+- The main app's build (`vite.config.ts`) explicitly excludes `legacy-portal/**` from its own precache and navigation fallback, so a device that has the main app installed won't have its root-scoped service worker hijack the legacy portal's first load.
 
 It's generated (not hand-edited) from a metadata list in [generate-legacy-portal.cjs](generate-legacy-portal.cjs) that mirrors `src/data/guidelines.ts`. To regenerate after changing guidelines:
 
@@ -76,6 +81,8 @@ Because it lives under `public/`, Vite copies it into `dist/legacy-portal/` unmo
 ```
 https://fireworks358.github.io/RSIChecklist/legacy-portal/
 ```
+
+Note: true iOS Service Worker support only arrived in iOS 11.3 (11.0–11.2 have none). On those, the portal still works as a plain set of linked pages — it just can't be installed or used offline until the device is on 11.3+.
 
 ## NHS Branding
 
