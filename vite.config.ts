@@ -17,7 +17,7 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'icons/**/*.png', 'guidelines/**/*.pdf', 'pdf.worker.min.mjs'],
+      includeAssets: ['favicon.ico', 'icons/**/*.png', 'guidelines/**/*.pdf', 'pdf.worker.min.js'],
       manifest: {
         name: 'Emergency Airway Portal',
         short_name: 'Airway Portal',

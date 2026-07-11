@@ -1,75 +1,226 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Document, Page, pdfjs } from 'react-pdf';
+// The legacy build ships ES5 + a classic (non-module) worker, which is what
+// lets this single viewer run on iOS 11-14 iPads as well as modern browsers.
+// pdfjs-dist is pinned to 2.x for that reason — later majors drop old Safari.
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
+import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
 import { PDFLoadingState } from './PDFLoadingState';
 import { useOfflineStatus } from '../../hooks/useOfflineStatus';
 import { Stopwatch } from '../ui/Stopwatch';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
 
-// Configure PDF.js worker - using local file with base path
-pdfjs.GlobalWorkerOptions.workerSrc = `${import.meta.env.BASE_URL}pdf.worker.min.mjs`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `${import.meta.env.BASE_URL}pdf.worker.min.js`;
 
 interface PDFViewerProps {
   pdfPath: string;
   title: string;
 }
 
+const MIN_SCALE = 0.5;
+const MAX_SCALE = 4;
+// Old iPads refuse to paint canvases past roughly this edge length.
+const MAX_CANVAS_DIM = 4096;
+
+const clampScale = (s: number) => Math.max(MIN_SCALE, Math.min(MAX_SCALE, s));
+
 export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
   const navigate = useNavigate();
   // Construct full URL with base path for GitHub Pages compatibility
   const fullPdfUrl = `${import.meta.env.BASE_URL}${pdfPath.replace(/^\//, '')}`;
 
+  const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [scale, setScale] = useState<number>(1.5);
+  const [scale, setScale] = useState<number>(1);
   const [isSideBySide, setIsSideBySide] = useState<boolean>(false);
-  const [initialPinchDistance, setInitialPinchDistance] = useState<number | null>(null);
-  const [initialScale, setInitialScale] = useState<number>(1.5);
   const isOnline = useOfflineStatus();
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const pagesWrapRef = useRef<HTMLDivElement>(null);
+  const canvas1Ref = useRef<HTMLCanvasElement>(null);
+  const canvas2Ref = useRef<HTMLCanvasElement>(null);
+  const renderTasksRef = useRef<RenderTask[]>([]);
+  // Unscaled (scale=1) size of page 1, used for fit-to-width calculations.
+  const baseSizeRef = useRef<{ width: number; height: number } | null>(null);
+  const scaleRef = useRef(scale);
+  scaleRef.current = scale;
+
+  const fitScale = useCallback((sideBySide: boolean): number => {
+    const container = containerRef.current;
+    const base = baseSizeRef.current;
+    if (!container || !base) return 1;
+    const padding = 48; // p-6 either side
+    const gap = sideBySide ? 16 : 0;
+    const available = container.clientWidth - padding - gap;
+    const pages = sideBySide ? 2 : 1;
+    return clampScale(available / (base.width * pages));
+  }, []);
+
+  // Load the document
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
     setError(null);
+    setPdf(null);
+    setPageNumber(1);
 
-    // Debug: Check if PDF is in cache when offline
-    if (!isOnline && 'caches' in window) {
-      caches.keys().then(async (cacheNames) => {
-        console.log(`🔍 Checking cache for: ${fullPdfUrl}`);
-        console.log(`📦 Available caches:`, cacheNames);
-
-        for (const cacheName of cacheNames) {
-          const cache = await caches.open(cacheName);
-          const response = await cache.match(fullPdfUrl);
-          if (response) {
-            console.log(`✓ Found ${pdfPath} in ${cacheName}`);
-            return;
-          }
+    const task = pdfjsLib.getDocument(fullPdfUrl);
+    task.promise
+      .then(async (doc) => {
+        if (cancelled) return;
+        const page1 = await doc.getPage(1);
+        if (cancelled) return;
+        const vp = page1.getViewport({ scale: 1 });
+        baseSizeRef.current = { width: vp.width, height: vp.height };
+        setNumPages(doc.numPages);
+        setScale(fitScale(false));
+        setPdf(doc);
+        setLoading(false);
+      })
+      .catch((err: Error) => {
+        if (cancelled) return;
+        console.error('Error loading PDF:', err);
+        if (!navigator.onLine) {
+          setError('Cannot load PDF in offline mode. This PDF has not been cached yet. Please connect to the internet to download it for the first time.');
+        } else {
+          setError('Failed to load PDF. The file may be corrupted or the connection is unstable. Please try again.');
         }
-        console.warn(`✗ ${pdfPath} NOT found in any cache while offline`);
+        setLoading(false);
       });
+
+    return () => {
+      cancelled = true;
+      task.promise.then((doc) => doc.destroy()).catch(() => {});
+    };
+  }, [fullPdfUrl, fitScale]);
+
+  // Render the visible page(s) to canvas
+  useEffect(() => {
+    if (!pdf) return;
+    let cancelled = false;
+
+    renderTasksRef.current.forEach((t) => t.cancel());
+    renderTasksRef.current = [];
+
+    const renderPage = async (num: number, canvas: HTMLCanvasElement | null) => {
+      if (!canvas || num < 1 || num > pdf.numPages) return;
+      const page = await pdf.getPage(num);
+      if (cancelled) return;
+
+      const base = page.getViewport({ scale: 1 });
+      // Render at device resolution for sharpness, capped to what old-iOS
+      // canvas memory limits allow; CSS size stays at the logical scale.
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      let renderScale = scale * dpr;
+      const largestSide = Math.max(base.width, base.height);
+      if (largestSide * renderScale > MAX_CANVAS_DIM) {
+        renderScale = MAX_CANVAS_DIM / largestSide;
+      }
+      const viewport = page.getViewport({ scale: renderScale });
+
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+      canvas.style.width = `${Math.floor(base.width * scale)}px`;
+      canvas.style.height = `${Math.floor(base.height * scale)}px`;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const task = page.render({ canvasContext: ctx, viewport });
+      renderTasksRef.current.push(task);
+      // Cancellation surfaces as a rejected promise; nothing to do about it.
+      await task.promise.catch(() => {});
+    };
+
+    renderPage(pageNumber, canvas1Ref.current);
+    if (isSideBySide) {
+      renderPage(pageNumber + 1, canvas2Ref.current);
     }
-  }, [pdfPath, fullPdfUrl, isOnline]);
 
-  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
-    setLoading(false);
-  };
+    return () => {
+      cancelled = true;
+    };
+  }, [pdf, pageNumber, scale, isSideBySide]);
 
-  const onDocumentLoadError = (error: Error) => {
-    console.error('Error loading PDF:', error);
+  // Pinch-to-zoom. Native touch listeners (not React's) because they must be
+  // non-passive: preventDefault() on two-finger gestures is the only way to
+  // stop iOS < 13 (no touch-action support) from zooming the whole page —
+  // chrome included. During the gesture the rendered canvas is scaled with a
+  // CSS transform (instant, no re-render); the real re-render at the final
+  // scale happens once, on release.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-    // Provide context-aware error messages
-    if (!isOnline) {
-      setError('Cannot load PDF in offline mode. This PDF has not been cached yet. Please connect to the internet to download it for the first time.');
-    } else {
-      setError('Failed to load PDF. The file may be corrupted or the connection is unstable. Please try again.');
-    }
+    let startDist = 0;
+    let startScale = 1;
+    let pendingScale: number | null = null;
 
-    setLoading(false);
-  };
+    const touchDistance = (touches: TouchList): number => {
+      const dx = touches[1].clientX - touches[0].clientX;
+      const dy = touches[1].clientY - touches[0].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 2) return;
+      e.preventDefault();
+      startDist = touchDistance(e.touches);
+      startScale = scaleRef.current;
+      const wrap = pagesWrapRef.current;
+      if (wrap) {
+        const rect = wrap.getBoundingClientRect();
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        wrap.style.transformOrigin = `${midX - rect.left}px ${midY - rect.top}px`;
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length !== 2 || startDist === 0) return;
+      e.preventDefault();
+      const next = clampScale(startScale * (touchDistance(e.touches) / startDist));
+      pendingScale = next;
+      const wrap = pagesWrapRef.current;
+      if (wrap) wrap.style.transform = `scale(${next / startScale})`;
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (startDist === 0 || e.touches.length >= 2) return;
+      startDist = 0;
+      const wrap = pagesWrapRef.current;
+      if (wrap) {
+        wrap.style.transform = '';
+        wrap.style.transformOrigin = '';
+      }
+      if (pendingScale !== null) {
+        setScale(pendingScale);
+        pendingScale = null;
+      }
+    };
+
+    // iOS-only gesture events; preventing them suppresses native page zoom
+    // for pinches that start anywhere in the viewer (toolbar included).
+    const onGesture = (e: Event) => e.preventDefault();
+
+    const root = container.closest('[data-pdf-viewer]') ?? container;
+    container.addEventListener('touchstart', onTouchStart, { passive: false });
+    container.addEventListener('touchmove', onTouchMove, { passive: false });
+    container.addEventListener('touchend', onTouchEnd);
+    container.addEventListener('touchcancel', onTouchEnd);
+    root.addEventListener('gesturestart', onGesture);
+    root.addEventListener('gesturechange', onGesture);
+
+    return () => {
+      container.removeEventListener('touchstart', onTouchStart);
+      container.removeEventListener('touchmove', onTouchMove);
+      container.removeEventListener('touchend', onTouchEnd);
+      container.removeEventListener('touchcancel', onTouchEnd);
+      root.removeEventListener('gesturestart', onGesture);
+      root.removeEventListener('gesturechange', onGesture);
+    };
+  }, []);
 
   const goToPrevPage = () => {
     const step = isSideBySide ? 2 : 1;
@@ -91,16 +242,9 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
 
   const toggleSideBySide = () => {
     setIsSideBySide(prev => {
-      const newValue = !prev;
-      // When switching to side-by-side, reduce scale if needed
-      if (newValue && scale > 1.0) {
-        setScale(1.0);
-      }
-      // When switching back to single, restore default scale
-      if (!newValue && scale < 1.5) {
-        setScale(1.5);
-      }
-      return newValue;
+      const next = !prev;
+      setScale(fitScale(next));
+      return next;
     });
     // Adjust page number to odd page when switching to side-by-side
     if (!isSideBySide && pageNumber % 2 === 0) {
@@ -108,44 +252,8 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
     }
   };
 
-  const zoomIn = () => {
-    setScale(prev => Math.min(prev + 0.25, 3));
-  };
-
-  const zoomOut = () => {
-    setScale(prev => Math.max(prev - 0.25, 0.5));
-  };
-
-  // Calculate distance between two touch points
-  const getTouchDistance = (touches: React.TouchList): number => {
-    const touch1 = touches[0];
-    const touch2 = touches[1];
-    const dx = touch2.clientX - touch1.clientX;
-    const dy = touch2.clientY - touch1.clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-  };
-
-  // Handle pinch-to-zoom
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length === 2) {
-      const distance = getTouchDistance(e.touches);
-      setInitialPinchDistance(distance);
-      setInitialScale(scale);
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length === 2 && initialPinchDistance !== null) {
-      const distance = getTouchDistance(e.touches);
-      const scaleChange = distance / initialPinchDistance;
-      const newScale = Math.max(0.5, Math.min(3, initialScale * scaleChange));
-      setScale(newScale);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    setInitialPinchDistance(null);
-  };
+  const zoomIn = () => setScale(prev => clampScale(prev + 0.25));
+  const zoomOut = () => setScale(prev => clampScale(prev - 0.25));
 
   if (error) {
     return (
@@ -182,7 +290,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-nhs-grey relative">
+    <div className="flex flex-col h-full bg-nhs-grey relative" data-pdf-viewer>
       {/* Floating Offline Status Badge */}
       {!isOnline && (
         <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 bg-nhs-warm-yellow text-nhs-black
@@ -192,7 +300,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
       )}
 
       {/* PDF Controls */}
-      <div className="bg-nhs-blue/95 backdrop-blur-sm text-white shadow-lg z-40 shrink-0 touch-none">
+      <div className="bg-nhs-blue/95 backdrop-blur-sm text-white shadow-lg z-40 shrink-0">
         <div className="flex items-center flex-wrap gap-2 px-4 py-3">
           {/* Navigation */}
           <div className="flex items-center gap-2">
@@ -289,6 +397,16 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
             >
               +
             </button>
+            <a
+              href={fullPdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold
+                       transition-colors active:scale-95 min-h-touch"
+              title="Open original PDF"
+            >
+              PDF
+            </a>
           </div>
           <div className="h-8 w-px bg-white/30"></div>
           <Stopwatch />
@@ -297,39 +415,19 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({ pdfPath }) => {
 
       {/* PDF Document */}
       <div
+        ref={containerRef}
         className="flex-1 overflow-auto p-6"
-        style={{ touchAction: 'pan-x pan-y' }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
-        <div className="flex flex-row flex-nowrap justify-center items-start gap-4 min-w-full">
-          {loading && <PDFLoadingState />}
-          <Document
-            file={fullPdfUrl}
-            onLoadSuccess={onDocumentLoadSuccess}
-            onLoadError={onDocumentLoadError}
-            loading={<PDFLoadingState />}
-          >
-            <div className="flex flex-row flex-nowrap gap-4">
-              <Page
-                pageNumber={pageNumber}
-                scale={scale}
-                renderTextLayer={true}
-                renderAnnotationLayer={true}
-                className="bg-white shadow-2xl"
-              />
-              {isSideBySide && pageNumber < numPages && (
-                <Page
-                  pageNumber={pageNumber + 1}
-                  scale={scale}
-                  renderTextLayer={true}
-                  renderAnnotationLayer={true}
-                  className="bg-white shadow-2xl"
-                />
-              )}
-            </div>
-          </Document>
+        {loading && <PDFLoadingState />}
+        <div
+          ref={pagesWrapRef}
+          className="flex flex-row flex-nowrap justify-center items-start gap-4 min-w-full"
+        >
+          <canvas ref={canvas1Ref} className="bg-white shadow-2xl" />
+          {isSideBySide && pageNumber < numPages && (
+            <canvas ref={canvas2Ref} className="bg-white shadow-2xl" />
+          )}
         </div>
       </div>
     </div>
