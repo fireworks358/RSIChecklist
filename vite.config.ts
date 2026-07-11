@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import legacy from '@vitejs/plugin-legacy'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
@@ -7,6 +8,13 @@ export default defineConfig({
   base: '/RSIChecklist/',
   plugins: [
     react(),
+    // Serves an ES5 + core-js legacy bundle to browsers that support
+    // <script type="module"> but can't parse modern syntax (Safari 11-14,
+    // i.e. iPads stuck on old iPadOS). Modern browsers still get the
+    // fast, untranspiled bundle built below.
+    legacy({
+      targets: ['iOS >= 11', 'Safari >= 11'],
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'icons/**/*.png', 'guidelines/**/*.pdf', 'pdf.worker.min.mjs'],
@@ -81,8 +89,8 @@ export default defineConfig({
     })
   ],
   build: {
-    // Safari 15 ≈ every iPad still receiving updates; 'esnext' white-screened older iPadOS
-    target: 'safari15',
+    // @vitejs/plugin-legacy manages the modern/legacy split and its
+    // corresponding esbuild target itself — don't override target here.
     sourcemap: true
   },
   server: {

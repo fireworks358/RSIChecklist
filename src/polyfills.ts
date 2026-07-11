@@ -1,5 +1,14 @@
-// Runtime polyfills for older iPad/Safari versions (iPadOS 15–17.3).
+// Runtime polyfills for older iPad/Safari versions, down to iOS 11.
 // Must be imported before anything that pulls in pdfjs-dist.
+
+// globalThis — Safari 11 doesn't have it at all. Every check below reads
+// `globalThis.x`, and referencing an undeclared bare identifier throws a
+// ReferenceError (not just `undefined`), which would abort this whole module
+// before any other polyfill runs. Must go first, and must not reference the
+// bare `globalThis` identifier itself.
+if (typeof window !== 'undefined' && !('globalThis' in window)) {
+  (window as unknown as { globalThis: Window }).globalThis = window;
+}
 
 // Promise.withResolvers — Safari 17.4+
 if (typeof (Promise as { withResolvers?: unknown }).withResolvers !== 'function') {

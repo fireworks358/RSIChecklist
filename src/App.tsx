@@ -1,10 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Navigation } from './components/navigation/Navigation';
 import { LandingPage } from './pages/LandingPage';
 import { CategoryView } from './pages/CategoryView';
-import { PDFViewerPage } from './pages/PDFViewerPage';
 import { RotateButton } from './components/ui/RotateButton';
+
+// Lazy-loaded: react-pdf/pdfjs-dist is only needed once someone actually
+// opens a PDF, and pulls in APIs (module workers) that old iPads can't run.
+// Keeping it out of the main chunk means the checklist still works on those
+// devices even if the PDF page itself can't.
+const PDFViewerPage = lazy(() =>
+  import('./pages/PDFViewerPage').then((m) => ({ default: m.PDFViewerPage }))
+);
 
 function AppLayout() {
   const location = useLocation();
@@ -22,7 +29,14 @@ function AppLayout() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/category/:category" element={<CategoryView />} />
-      <Route path="/pdf/:id" element={<PDFViewerPage />} />
+      <Route
+        path="/pdf/:id"
+        element={
+          <Suspense fallback={null}>
+            <PDFViewerPage />
+          </Suspense>
+        }
+      />
       <Route path="*" element={<LandingPage />} />
     </Routes>
   );
