@@ -12,7 +12,7 @@ export const Navigation: React.FC = () => {
   if (isHomePage || isPDFPage) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-nhs-blue text-white shadow-lg z-50">
+    <nav className="fixed top-0 left-0 right-0 bg-nhs-blue text-white shadow-lg z-50 pt-[env(safe-area-inset-top)]">
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-4">
           <BackButton />

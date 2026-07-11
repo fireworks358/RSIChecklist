@@ -3,8 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>rsichecklist</title>
+
+    <!-- iOS "Add to Home Screen" support. iOS has never fully read the Web
+         App Manifest for this, so these tags are the real source of truth
+         for iPad: they control the icon, hide Safari's UI chrome in
+         standalone mode, and set the home-screen label. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Airway Portal" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png" />
     <script type="text/javascript">
       // Restores the path 404.html encoded before redirecting here, so
       // React Router sees the real route instead of "/".

@@ -64,7 +64,10 @@ function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen" style={{ '--app-height': '100dvh' } as React.CSSProperties}>
+    <div
+      className="min-h-screen pt-[env(safe-area-inset-top)]"
+      style={{ '--app-height': '100dvh' } as React.CSSProperties}
+    >
       <Navigation />
       {routes}
       {isPDFPage && (
