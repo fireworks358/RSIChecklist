@@ -155,11 +155,11 @@ fs.writeFileSync(
     <span class="tile-title">Paediatric</span>
     <span class="tile-sub">Guidelines &amp; algorithms</span>
   </a>
-  <a class="landing-tile tile-trachy" href="laryngectomy-tracheostomy.html">
-    <span class="tile-title">Laryngectomy/<wbr>Tracheostomy</span>
-    <span class="tile-sub">Emergency management</span>
-  </a>
-</div>`,
+</div>
+<a class="landing-tile tile-trachy" href="laryngectomy-tracheostomy.html">
+  <span class="tile-title">Laryngectomy/<wbr>Tracheostomy</span>
+  <span class="tile-sub">Emergency management</span>
+</a>`,
     null
   )
 );

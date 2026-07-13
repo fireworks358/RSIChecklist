@@ -125,13 +125,13 @@ footer {
     -webkit-flex-direction: row;
     flex-direction: row;
   }
-  .landing-tile {
+  .landing-grid .landing-tile {
     -webkit-box-flex: 1;
     -webkit-flex: 1;
     flex: 1;
     margin-right: 20px;
   }
-  .landing-tile:last-child {
+  .landing-grid .landing-tile:last-child {
     margin-right: 0;
   }
 }
