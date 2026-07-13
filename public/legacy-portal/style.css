@@ -111,6 +111,15 @@ footer {
   background-color: #007b72;
 }
 
+.tile-trachy {
+  background-color: #330072;
+  color: #ffffff;
+}
+
+.tile-trachy:active {
+  background-color: #21004a;
+}
+
 @media (min-width: 700px) {
   .landing-grid {
     -webkit-flex-direction: row;

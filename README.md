@@ -65,6 +65,8 @@ If you add/rename/remove a PDF, also update the matching entry in [generate-lega
 
 `public/legacy-portal/` is a second, minimal product for hospital iPads too old to run the main PWA reliably (iOS 11 Safari has limited/buggy Service Worker support and can't run the modern PDF.js viewer). It's plain HTML/CSS with **no JavaScript, no build step, and no service worker** — just a landing page with Adult/Paediatric tiles that link straight to the PDFs, which iOS Safari opens in its native viewer.
 
+It's installable as its own home-screen app, separate from the main PWA. Each page carries `apple-mobile-web-app-*` meta tags, an `apple-touch-icon`, and a `manifest.json` (name "Emergency Airway Portal (Legacy)", scoped to `legacy-portal/`) — all of which work without any JavaScript, so "Add to Home Screen" on old iOS gives it a distinct icon/title from the main app. There's deliberately no service worker behind it, so it won't trigger Chrome/Android's automatic install banner (which requires one) — "Add to Home Screen" from the browser menu still works there.
+
 It's generated (not hand-edited) from a metadata list in [generate-legacy-portal.cjs](generate-legacy-portal.cjs) that mirrors `src/data/guidelines.ts`. To regenerate after changing guidelines:
 
 ```bash

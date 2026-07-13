@@ -2,7 +2,7 @@
 // Run with `node generate-legacy-portal.cjs` after adding/renaming PDFs in
 // public/guidelines/adult or public/guidelines/paediatric.
 //
-// Output: public/legacy-portal/{index,adult,paediatric}.html
+// Output: public/legacy-portal/{index,adult,paediatric,laryngectomy-tracheostomy}.html
 // Deployed automatically at /RSIChecklist/legacy-portal/ (public/ is copied
 // verbatim into dist/ by Vite, no build step needed for these files).
 
@@ -64,6 +64,12 @@ const paediatricGuidelines = [
   { title: 'PDCH', file: 'PDCH.pdf', description: 'PDCH guideline for paediatric patients' }
 ];
 
+// PDFs live in public/guidelines/adult but get their own top-level section.
+const trachyGuidelines = [
+  { title: 'Emergency Laryngectomy Management', file: 'Emergency_Laryngectomy.pdf', description: 'Emergency management of the patient with a laryngectomy' },
+  { title: 'Emergency Tracheostomy Management', file: 'Emergency_Tracheostomy.pdf', description: 'Emergency management of the patient with a tracheostomy' }
+];
+
 function escapeHtml(str) {
   return str
     .replace(/&/g, '&amp;')
@@ -82,6 +88,13 @@ function page(title, bodyHtml, backLink) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<meta name="theme-color" content="#005EB8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Airway Legacy">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="../icons/icon-192.png">
 <title>${escapeHtml(title)}</title>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -142,6 +155,10 @@ fs.writeFileSync(
     <span class="tile-title">Paediatric</span>
     <span class="tile-sub">Guidelines &amp; algorithms</span>
   </a>
+  <a class="landing-tile tile-trachy" href="laryngectomy-tracheostomy.html">
+    <span class="tile-title">Laryngectomy/<wbr>Tracheostomy</span>
+    <span class="tile-sub">Emergency management</span>
+  </a>
 </div>`,
     null
   )
@@ -157,4 +174,9 @@ fs.writeFileSync(
   page('Paediatric Guidelines', renderList(paediatricGuidelines, 'paediatric'), 'index.html')
 );
 
-console.log(`Generated ${adultGuidelines.length} adult and ${paediatricGuidelines.length} paediatric entries into ${OUT_DIR}`);
+fs.writeFileSync(
+  path.join(OUT_DIR, 'laryngectomy-tracheostomy.html'),
+  page('Laryngectomy/Tracheostomy', renderList(trachyGuidelines, 'adult'), 'index.html')
+);
+
+console.log(`Generated ${adultGuidelines.length} adult, ${paediatricGuidelines.length} paediatric and ${trachyGuidelines.length} laryngectomy/tracheostomy entries into ${OUT_DIR}`);
