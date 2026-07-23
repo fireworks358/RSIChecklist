@@ -11,11 +11,19 @@ export const adultGuidelines: Guideline[] = [
   },
   {
     id: 'adult-cico-algorithm',
-    title: 'CICO Algorithm',
+    title: 'DAS Guidelines 2025',
     category: 'adult',
-    pdfPath: '/guidelines/adult/cico-algorithm.pdf',
+    pdfPath: '/guidelines/adult/DAS25.pdf',
     description: 'Can\'t Intubate, Can\'t Oxygenate emergency protocol',
     order: 3
+  },
+  {
+    id: 'adult-efona-visual-guide',
+    title: 'Front of Neck visual guide',
+    category: 'adult',
+    pdfPath: '/guidelines/adult/eFONA image.jpg',
+    description: 'Emergency Front of Neck Access visual guide',
+    order: 4
   },
   {
     id: 'adult-als-algorithm',
