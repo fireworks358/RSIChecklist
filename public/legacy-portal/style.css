@@ -41,11 +41,15 @@ a {
   font-size: 18px;
   font-weight: bold;
   background-color: rgba(255, 255, 255, 0.15);
-  border-radius: 6px;
+  border-radius: 20px;
+  -webkit-transition: background-color 0.12s ease-out, -webkit-transform 0.12s ease-out;
+  transition: background-color 0.12s ease-out, transform 0.12s ease-out;
 }
 
 .topbar .back:active {
   background-color: rgba(255, 255, 255, 0.3);
+  -webkit-transform: scale(0.96);
+  transform: scale(0.96);
 }
 
 main {
@@ -74,77 +78,106 @@ footer {
 
 .landing-tile {
   display: block;
-  padding: 48px 24px;
+  padding: 40px 24px;
   margin-bottom: 20px;
-  border-radius: 12px;
+  border-radius: 16px;
   text-align: center;
   min-height: 140px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  -webkit-transition: -webkit-transform 0.12s ease-out, box-shadow 0.12s ease-out;
+  transition: transform 0.12s ease-out, box-shadow 0.12s ease-out;
+}
+
+.landing-tile:active {
+  -webkit-transform: scale(0.97);
+  transform: scale(0.97);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
 .tile-title {
   display: block;
   font-size: 40px;
   font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
 .tile-sub {
   display: block;
   font-size: 18px;
   margin-top: 8px;
+  opacity: 0.9;
 }
 
 .tile-adult {
   background-color: #005eb8;
+  background-image: -webkit-linear-gradient(135deg, #2f8fe0, #004a93);
+  background-image: linear-gradient(135deg, #2f8fe0, #004a93);
   color: #ffffff;
 }
 
 .tile-adult:active {
   background-color: #003d78;
+  background-image: none;
 }
 
 .tile-paed {
   background-color: #00a499;
+  background-image: -webkit-linear-gradient(135deg, #2ec7bb, #00857c);
+  background-image: linear-gradient(135deg, #2ec7bb, #00857c);
   color: #ffffff;
 }
 
 .tile-paed:active {
   background-color: #007b72;
+  background-image: none;
 }
 
 .tile-trachy {
   background-color: #330072;
+  background-image: -webkit-linear-gradient(135deg, #5b34a8, #29005e);
+  background-image: linear-gradient(135deg, #5b34a8, #29005e);
   color: #ffffff;
 }
 
 .tile-trachy:active {
   background-color: #21004a;
+  background-image: none;
 }
 
 .tile-orphan {
   background-color: #ae2573;
+  background-image: -webkit-linear-gradient(135deg, #d34a97, #8f1c5e);
+  background-image: linear-gradient(135deg, #d34a97, #8f1c5e);
   color: #ffffff;
 }
 
 .tile-orphan:active {
   background-color: #7d1a53;
+  background-image: none;
 }
 
 .tile-minestrone {
   background-color: #ed8b00;
+  background-image: -webkit-linear-gradient(135deg, #ffab33, #c97300);
+  background-image: linear-gradient(135deg, #ffab33, #c97300);
   color: #ffffff;
 }
 
 .tile-minestrone:active {
   background-color: #b56900;
+  background-image: none;
 }
 
 .tile-feedback {
-  background-color: #41B6E6;
+  background-color: #41b6e6;
+  background-image: -webkit-linear-gradient(135deg, #6fcbef, #2496c9);
+  background-image: linear-gradient(135deg, #6fcbef, #2496c9);
   color: #ffffff;
 }
 
 .tile-feedback:active {
   background-color: #1f8db3;
+  background-image: none;
 }
 
 @media (min-width: 700px) {
@@ -188,13 +221,19 @@ footer {
   background-color: #ffffff;
   border: 1px solid #d8dde0;
   border-left: 6px solid #005eb8;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 18px 20px;
   min-height: 60px;
+  box-shadow: 0 2px 6px rgba(33, 43, 50, 0.08);
+  -webkit-transition: -webkit-transform 0.12s ease-out, box-shadow 0.12s ease-out, background-color 0.12s ease-out;
+  transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, background-color 0.12s ease-out;
 }
 
 .doc-link:active {
   background-color: #e8f1fb;
+  -webkit-transform: scale(0.98);
+  transform: scale(0.98);
+  box-shadow: 0 1px 3px rgba(33, 43, 50, 0.08);
 }
 
 .doc-title {
