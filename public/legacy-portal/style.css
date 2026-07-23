@@ -170,20 +170,20 @@ footer {
 
 .tile-adult {
   background-color: #005eb8;
-  background-image: -webkit-linear-gradient(135deg, #2f8fe0, #004a93);
-  background-image: linear-gradient(135deg, #2f8fe0, #004a93);
+  background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%);
   color: #ffffff;
 }
 
 .tile-adult:active {
-  background-color: #003d78;
+  background-color: #003087;
   background-image: none;
 }
 
 .tile-paed {
   background-color: #00a499;
-  background-image: -webkit-linear-gradient(135deg, #2ec7bb, #00857c);
-  background-image: linear-gradient(135deg, #2ec7bb, #00857c);
+  background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%);
   color: #ffffff;
 }
 
@@ -194,9 +194,10 @@ footer {
 
 .tile-trachy {
   background-color: #330072;
-  background-image: -webkit-linear-gradient(135deg, #5b34a8, #29005e);
-  background-image: linear-gradient(135deg, #5b34a8, #29005e);
+  background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%);
   color: #ffffff;
+  padding: 14px 18px;
 }
 
 .tile-trachy:active {
@@ -204,22 +205,30 @@ footer {
   background-image: none;
 }
 
+.tile-trachy .tile-title {
+  font-size: 26px;
+}
+
+.tile-trachy .tile-sub {
+  font-size: 15px;
+}
+
 .tile-orphan {
   background-color: #ae2573;
-  background-image: -webkit-linear-gradient(135deg, #d34a97, #8f1c5e);
-  background-image: linear-gradient(135deg, #d34a97, #8f1c5e);
+  background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%);
   color: #ffffff;
 }
 
 .tile-orphan:active {
-  background-color: #7d1a53;
+  background-color: #7c2855;
   background-image: none;
 }
 
 .tile-minestrone {
   background-color: #ed8b00;
-  background-image: -webkit-linear-gradient(135deg, #ffab33, #c97300);
-  background-image: linear-gradient(135deg, #ffab33, #c97300);
+  background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%);
   color: #ffffff;
 }
 
@@ -230,13 +239,25 @@ footer {
 
 .tile-feedback {
   background-color: #41b6e6;
-  background-image: -webkit-linear-gradient(135deg, #6fcbef, #2496c9);
-  background-image: linear-gradient(135deg, #6fcbef, #2496c9);
+  background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%);
   color: #ffffff;
 }
 
 .tile-feedback:active {
   background-color: #1f8db3;
+  background-image: none;
+}
+
+.tile-checklist {
+  background-color: #009639;
+  background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 60%);
+  color: #ffffff;
+}
+
+.tile-checklist:active {
+  background-color: #00722c;
   background-image: none;
 }
 
