@@ -120,6 +120,33 @@ footer {
   background-color: #21004a;
 }
 
+.tile-orphan {
+  background-color: #ae2573;
+  color: #ffffff;
+}
+
+.tile-orphan:active {
+  background-color: #7d1a53;
+}
+
+.tile-minestrone {
+  background-color: #ed8b00;
+  color: #ffffff;
+}
+
+.tile-minestrone:active {
+  background-color: #b56900;
+}
+
+.tile-feedback {
+  background-color: #41B6E6;
+  color: #ffffff;
+}
+
+.tile-feedback:active {
+  background-color: #1f8db3;
+}
+
 @media (min-width: 700px) {
   .landing-grid {
     -webkit-flex-direction: row;
