@@ -63,7 +63,19 @@ If you add/rename/remove a PDF, also update the matching entry in [generate-lega
 
 ## Legacy Portal (old iPads, iOS 11+)
 
-`public/legacy-portal/` is a second, minimal product for hospital iPads too old to run the main PWA reliably (iOS 11 Safari has limited/buggy Service Worker support and can't run the modern PDF.js viewer). It's plain HTML/CSS with **no JavaScript, no build step, and no service worker** — just a landing page with Adult/Paediatric tiles that link straight to the PDFs, which iOS Safari opens in its native viewer.
+`public/legacy-portal/` is a second, minimal product for hospital iPads too old to run the main PWA reliably (iOS 11 Safari has limited/buggy Service Worker support and can't run the modern PDF.js viewer). It's plain HTML/CSS with **no build step and no service worker** — a landing page with tiles that link straight to PDFs, which iOS Safari opens in its native viewer. Almost every page is JS-free; the Directory page's search box is the one exception, using a small vanilla `<script>` to filter as you type.
+
+### Directory page
+
+`directory.html` is a searchable phone/bleep directory with a tap-to-call QR code for the switchboard at the top. Its content comes from [directory-data.csv](directory-data.csv), not from the generator script — edit that CSV to add, rename, remove, or re-nest entries (nesting is just `Parent > Child` in the `Path` column), then rebuild with `node generate-legacy-portal.cjs`.
+
+If you change the Switchboard number, also regenerate its QR code:
+
+```bash
+python3 generate-directory-qr.py
+```
+
+(requires `pip install qrcode`).
 
 It's installable as its own home-screen app, separate from the main PWA. Each page carries `apple-mobile-web-app-*` meta tags, an `apple-touch-icon`, and a `manifest.json` (name "Emergency Airway Portal (Legacy)", scoped to `legacy-portal/`) — all of which work without any JavaScript, so "Add to Home Screen" on old iOS gives it a distinct icon/title from the main app. There's deliberately no service worker behind it, so it won't trigger Chrome/Android's automatic install banner (which requires one) — "Add to Home Screen" from the browser menu still works there.
 

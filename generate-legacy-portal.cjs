@@ -1,8 +1,13 @@
-// Generates the static, JS-free "legacy portal" for old iPads (iOS 11+).
-// Run with `node generate-legacy-portal.cjs` after adding/renaming PDFs in
-// public/guidelines/adult or public/guidelines/paediatric.
+// Generates the static "legacy portal" for old iPads (iOS 11+). Almost all
+// of it is JS-free; the one exception is the Directory page's search box,
+// which needs a small vanilla <script> to filter as you type - see
+// renderDirectoryPage() below.
 //
-// Output: public/legacy-portal/{index,adult,paediatric,laryngectomy-tracheostomy}.html
+// Run with `node generate-legacy-portal.cjs` after adding/renaming PDFs in
+// public/guidelines/adult or public/guidelines/paediatric, or after editing
+// directory-data.csv.
+//
+// Output: public/legacy-portal/{index,adult,paediatric,laryngectomy-tracheostomy,directory}.html
 // Deployed automatically at /RSIChecklist/legacy-portal/ (public/ is copied
 // verbatim into dist/ by Vite, no build step needed for these files).
 
@@ -10,13 +15,15 @@ const fs = require('fs');
 const path = require('path');
 
 const OUT_DIR = path.join(__dirname, 'public', 'legacy-portal');
+const DIRECTORY_CSV = path.join(__dirname, 'directory-data.csv');
 
 // Mirrors src/data/guidelines.ts (title, file, optional group).
 // Kept as a plain duplicate here so this script has zero dependency on the
 // TypeScript app and can run with plain Node.
 const adultGuidelines = [
-  { title: 'RSI Checklist', file: 'rsi-checklist.pdf', description: 'Rapid Sequence Intubation checklist for adult patients' },
-  { title: 'CICO Algorithm', file: 'cico-algorithm.pdf', description: "Can't Intubate, Can't Oxygenate emergency protocol" },
+  { title: 'RSI Checklist', file: 'rsi-checklist.pdf', href: 'rsi-checklist.html', description: 'Interactive step-by-step Rapid Sequence Intubation checklist' },
+  { title: 'DAS Guidelines 2025', file: 'DAS25.pdf', description: "Can't Intubate, Can't Oxygenate emergency protocol" },
+  { title: 'Front of Neck visual guide', file: 'eFONA image.jpg', description: 'Emergency Front of Neck Access visual guide' },
   { title: 'GA Checklist', file: 'GA Checklist.pdf', description: 'General anaesthesia checklist' },
   { title: 'ALS Algorithm 2025', file: 'Adult ALS algorithm 2025.pdf', description: 'Adult advanced life support algorithm (2025)', group: 'Arrest' },
   { title: 'In Hospital Algorithm 2025', file: 'Adult in hospital algorithm 2025.pdf', description: 'Adult in-hospital resuscitation algorithm (2025)', group: 'Arrest' },
@@ -34,7 +41,7 @@ const adultGuidelines = [
 ];
 
 const paediatricGuidelines = [
-  { title: 'RSI Checklist', file: 'rsi-checklist.pdf', description: 'Rapid Sequence Intubation checklist for paediatric patients' },
+  { title: 'RSI Checklist', file: 'rsi-checklist.pdf', href: 'rsi-checklist.html', description: 'Interactive step-by-step Rapid Sequence Intubation checklist' },
   { title: 'Intubation Checklist', file: 'intubation-checklist-2024.pdf', description: 'SORT intubation checklist for paediatric patients (2024)' },
   { title: 'Anaesthesia for Emergencies', file: 'anaesthesia-for-emergencies.pdf', description: 'Guidelines for emergency anaesthesia procedures' },
   { title: 'Cardiac Arrest (ALS)', file: 'cardiac-arrest-als.pdf', description: 'Advanced life support protocol for paediatric cardiac arrest', group: 'Arrest' },
@@ -82,7 +89,202 @@ function encodeHref(file) {
   return file.split('/').map(encodeURIComponent).join('/');
 }
 
-function page(title, bodyHtml, backLink) {
+// --- Directory (phone/bleep numbers) -------------------------------------
+// Data lives in directory-data.csv so non-developers can add/edit/re-nest
+// entries without touching HTML/JS. See that file's header comment for the
+// column format.
+
+function parseCsv(text) {
+  const lines = text
+    .split(/\r?\n/)
+    .filter((line) => line.trim().length > 0 && !line.trim().startsWith('#'));
+
+  const rows = lines.map((line) => {
+    const fields = [];
+    let cur = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (inQuotes) {
+        if (ch === '"') {
+          if (line[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else {
+            inQuotes = false;
+          }
+        } else {
+          cur += ch;
+        }
+      } else if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ',') {
+        fields.push(cur);
+        cur = '';
+      } else {
+        cur += ch;
+      }
+    }
+    fields.push(cur);
+    return fields;
+  });
+
+  const header = rows[0].map((h) => h.trim().toLowerCase());
+  return rows.slice(1).map((fields) => {
+    const row = {};
+    header.forEach((h, i) => {
+      row[h] = (fields[i] || '').trim();
+    });
+    return row;
+  });
+}
+
+function buildDirectoryTree(rows) {
+  const root = { name: '', children: new Map() };
+  rows.forEach((row) => {
+    const segments = (row.path || '').split('>').map((s) => s.trim()).filter(Boolean);
+    if (segments.length === 0) return;
+    let node = root;
+    segments.forEach((seg, idx) => {
+      if (!node.children.has(seg)) {
+        node.children.set(seg, { name: seg, children: new Map() });
+      }
+      node = node.children.get(seg);
+      if (idx === segments.length - 1) {
+        node.number = row.number || '';
+        node.notes = row.notes || '';
+      }
+    });
+  });
+  return root;
+}
+
+function telHref(rawNumber) {
+  return (rawNumber || '').replace(/[^\d+]/g, '');
+}
+
+function renderDirectoryNumber(rawNumber) {
+  const digits = telHref(rawNumber);
+  if (!digits) {
+    return `<span class="dir-number dir-number-tbc">${escapeHtml(rawNumber || 'TBC')}</span>`;
+  }
+  return `<a class="dir-number" href="tel:${digits}">${escapeHtml(rawNumber)}</a>`;
+}
+
+function renderDirectoryLeaf(node, ancestors) {
+  const path = ancestors.concat([node.name]);
+  const searchStr = escapeHtml(`${path.join(' ')} ${node.number || ''}`.toLowerCase());
+  return `<div class="dir-row" data-search="${searchStr}">
+  <span class="dir-name">${escapeHtml(node.name)}</span>
+  ${renderDirectoryNumber(node.number)}
+  ${node.notes ? `<span class="dir-notes">${escapeHtml(node.notes)}</span>` : ''}
+</div>\n`;
+}
+
+function renderDirectoryNode(node, ancestors) {
+  const hasChildren = node.children.size > 0;
+  if (!hasChildren) {
+    return renderDirectoryLeaf(node, ancestors);
+  }
+  const path = ancestors.concat([node.name]);
+  let inner = '';
+  if (node.number) {
+    inner += renderDirectoryLeaf({ name: 'General', number: node.number, notes: node.notes, children: new Map() }, path);
+  }
+  node.children.forEach((child) => {
+    inner += renderDirectoryNode(child, path);
+  });
+  return `<details class="dir-group">
+<summary>${escapeHtml(node.name)}</summary>
+<div class="dir-children">
+${inner}</div>
+</details>\n`;
+}
+
+const DIRECTORY_SEARCH_SCRIPT = `<script>
+(function () {
+  var input = document.getElementById('dir-search');
+  var rows = document.querySelectorAll('.dir-row');
+  var groups = document.querySelectorAll('details.dir-group');
+  var noResults = document.getElementById('dir-no-results');
+  if (!input) return;
+
+  input.addEventListener('input', function () {
+    var query = input.value.trim().toLowerCase();
+    var anyVisible = false;
+
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      var match = query === '' || (row.getAttribute('data-search') || '').indexOf(query) !== -1;
+      row.style.display = match ? '' : 'none';
+      if (match) anyVisible = true;
+    }
+
+    for (var j = 0; j < groups.length; j++) {
+      var group = groups[j];
+      var groupRows = group.querySelectorAll('.dir-row');
+      var hasVisible = false;
+      for (var k = 0; k < groupRows.length; k++) {
+        if (groupRows[k].style.display !== 'none') {
+          hasVisible = true;
+          break;
+        }
+      }
+      group.style.display = hasVisible ? '' : 'none';
+      if (query === '') {
+        group.removeAttribute('open');
+      } else if (hasVisible) {
+        group.setAttribute('open', 'open');
+      }
+    }
+
+    if (noResults) noResults.hidden = anyVisible || query === '';
+  });
+})();
+</script>`;
+
+function renderDirectoryPage() {
+  const csvText = fs.readFileSync(DIRECTORY_CSV, 'utf8');
+  const rows = parseCsv(csvText);
+  const root = buildDirectoryTree(rows);
+
+  let switchboardNumber = '';
+  root.children.forEach((node, name) => {
+    if (name.toLowerCase() === 'switchboard') {
+      switchboardNumber = node.number || '';
+      root.children.delete(name);
+    }
+  });
+
+  let listHtml = '';
+  root.children.forEach((node) => {
+    listHtml += renderDirectoryNode(node, []);
+  });
+
+  const switchboardDigits = telHref(switchboardNumber);
+  const switchboardBanner = switchboardDigits
+    ? `<a class="switchboard-banner" href="tel:${switchboardDigits}">
+  <img class="switchboard-qr" src="directory-qr.svg" alt="QR code that calls the hospital switchboard" width="120" height="120">
+  <span class="switchboard-label">Switchboard</span>
+  <span class="switchboard-sub">Scan or tap to call ${escapeHtml(switchboardNumber)}</span>
+</a>`
+    : `<div class="switchboard-banner switchboard-banner-tbc">
+  <img class="switchboard-qr" src="directory-qr.svg" alt="QR code that calls the hospital switchboard" width="120" height="120">
+  <span class="switchboard-label">Switchboard</span>
+  <span class="switchboard-sub">Number not yet set - see directory-data.csv</span>
+</div>`;
+
+  const body = `${switchboardBanner}
+<input type="text" id="dir-search" class="dir-search" placeholder="Search names, departments, bleeps&hellip;" autocapitalize="none" autocorrect="off" autocomplete="off">
+<div id="dir-list">
+${listHtml}</div>
+<p id="dir-no-results" class="dir-no-results" hidden>No matches.</p>
+${DIRECTORY_SEARCH_SCRIPT}`;
+
+  return { body, switchboardNumber };
+}
+
+function page(title, bodyHtml, backLink, mainClass) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -103,7 +305,7 @@ function page(title, bodyHtml, backLink) {
 ${backLink ? `<a class="back" href="${backLink}">&larr; Back</a>` : ''}
 <h1>${escapeHtml(title)}</h1>
 </header>
-<main>
+<main${mainClass ? ` class="${mainClass}"` : ''}>
 ${bodyHtml}
 </main>
 <footer>
@@ -129,7 +331,7 @@ function renderList(guidelines, category) {
     }
     html += '<ul class="doc-list">\n';
     items.forEach((g) => {
-      const href = `../guidelines/${category}/${encodeHref(g.file)}`;
+      const href = g.href || `../guidelines/${category}/${encodeHref(g.file)}`;
       html += `<li><a class="doc-link" href="${href}">
   <span class="doc-title">${escapeHtml(g.title)}</span>
   <span class="doc-desc">${escapeHtml(g.description)}</span>
@@ -146,7 +348,15 @@ fs.writeFileSync(
   path.join(OUT_DIR, 'index.html'),
   page(
     'Emergency Airway Portal',
-    `<div class="landing-grid">
+    `<a class="landing-tile tile-rsi" href="rsi-checklist.html">
+  <span class="tile-title">RSI Checklist</span>
+  <span class="tile-sub">Step-by-step, point of use</span>
+</a>
+<a class="landing-tile tile-directory" href="directory.html">
+  <span class="tile-title">Directory</span>
+  <span class="tile-sub">Key phone &amp; bleep numbers</span>
+</a>
+<div class="landing-grid">
   <a class="landing-tile tile-adult" href="adult.html">
     <span class="tile-title">Adult</span>
     <span class="tile-sub">Guidelines &amp; algorithms</span>
@@ -156,11 +366,33 @@ fs.writeFileSync(
     <span class="tile-sub">Guidelines &amp; algorithms</span>
   </a>
 </div>
-<a class="landing-tile tile-trachy" href="laryngectomy-tracheostomy.html">
-  <span class="tile-title">Laryngectomy/<wbr>Tracheostomy</span>
-  <span class="tile-sub">Emergency management</span>
-</a>`,
-    null
+<div class="landing-grid">
+  <a class="landing-tile tile-trachy" href="laryngectomy-tracheostomy.html">
+    <span class="tile-title">Laryngectomy/<wbr>Tracheostomy</span>
+    <span class="tile-sub">Emergency management</span>
+  </a>
+  <a class="landing-tile tile-orphan" href="https://www.orphananesthesia.eu/rare-diseases/published-guidelines.html" target="_blank" rel="noopener noreferrer">
+    <span class="tile-title">Orphan Anaesthesia</span>
+    <span class="tile-sub">Rare disease guidelines</span>
+  </a>
+</div>
+<div class="landing-grid">
+  <a class="landing-tile tile-minestrone" href="/minestrone">
+    <span class="tile-title">Minestrone</span>
+    <span class="tile-sub">In-house PHR</span>
+  </a>
+  <div class="landing-tile tile-feedback tile-qr">
+    <img class="tile-qr-code" src="feedback-qr.svg" alt="QR code linking to the feedback form" width="110" height="110">
+    <span class="tile-title tile-title-sm">Feedback</span>
+    <span class="tile-sub">Scan to open the form</span>
+  </div>
+  <a class="landing-tile tile-checklist" href="https://odpcoordinator.netlify.app/airway-trolley.html">
+    <span class="tile-title">Weekly Checklist</span>
+    <span class="tile-sub"></span>
+  </a>
+</div>`,
+    null,
+    'landing-main'
   )
 );
 
@@ -179,4 +411,15 @@ fs.writeFileSync(
   page('Laryngectomy/Tracheostomy', renderList(trachyGuidelines, 'adult'), 'index.html')
 );
 
+const { body: directoryBody, switchboardNumber } = renderDirectoryPage();
+fs.writeFileSync(
+  path.join(OUT_DIR, 'directory.html'),
+  page('Directory', directoryBody, 'index.html')
+);
+
 console.log(`Generated ${adultGuidelines.length} adult, ${paediatricGuidelines.length} paediatric and ${trachyGuidelines.length} laryngectomy/tracheostomy entries into ${OUT_DIR}`);
+if (!telHref(switchboardNumber)) {
+  console.log('Directory: Switchboard number is not set yet - edit directory-data.csv, then re-run this script and `python3 generate-directory-qr.py`.');
+} else {
+  console.log(`Directory: Switchboard is ${switchboardNumber}. If this changed, also run: python3 generate-directory-qr.py`);
+}

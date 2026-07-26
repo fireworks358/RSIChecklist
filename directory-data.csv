@@ -1,0 +1,36 @@
+# Legacy Portal "Directory" data source.
+#
+# Edit this file to add, rename, remove, or re-nest phone/bleep numbers, then
+# rebuild the page with:
+#   node generate-legacy-portal.cjs
+#
+# Columns: Path,Number,Notes
+#   Path   Name of the entry. Use " > " to nest it under a parent group, e.g.
+#          "Theatres > E Level" puts an "E Level" entry inside a "Theatres"
+#          group. Any depth works: "Theatres > E Level > On-call" is fine too.
+#   Number Extension or bleep number. Leave blank (or "XXXX") for "not yet
+#          set" - it will show as TBC instead of a dead tap-to-call link.
+#   Notes  Optional short note shown under the entry, e.g. "internal only".
+#          Wrap in "quotes" if it contains a comma.
+#
+# The row named exactly "Switchboard" is special - it drives the tap-to-call
+# QR banner at the top of the Directory page instead of appearing in the
+# list below. If you change its number, also regenerate the QR code:
+#   python3 generate-directory-qr.py
+#
+Path,Number,Notes
+Switchboard,XXXX,
+Site/Duty Manager,XXXX,
+Resus/Crash Bleep,XXXX,
+Security,XXXX,
+Portering,XXXX,
+Pharmacy (on-call),XXXX,
+Blood Bank / Transfusion,XXXX,
+Theatres > E Level,XXXX,
+Theatres > D Level,XXXX,
+Theatres > Maternity,XXXX,
+Theatres > Recovery,XXXX,
+ENT > Consultant,XXXX,
+ENT > Registrar,XXXX,
+ENT > SHO,XXXX,
+ENT > FY1,XXXX,

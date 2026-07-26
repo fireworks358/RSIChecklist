@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<meta name="theme-color" content="#005EB8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Airway Legacy">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="../icons/icon-192.png">
+<title>RSI Checklist</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar checklist-topbar">
+<a class="back" href="index.html">&larr; Back</a>
+<h1>RSI Checklist</h1>
+<button id="restartBtn" class="restart-btn" type="button" hidden>Restart</button>
+</header>
+<main>
+
+<div id="startScreen" class="checklist-screen">
+  <p class="intro-text">A step-by-step run-through of the Faculty of Intensive Care Medicine / Intensive Care Society ITU intubation safety checklist &mdash; one question at a time, through <strong>Before the Procedure</strong>, <strong>Time Out</strong> and <strong>Sign Out</strong>.</p>
+  <p class="intro-note">This is a cognitive aid only. Nothing you enter is saved or transmitted &mdash; it stays on this screen and disappears when you restart. It does not replace your unit's documented safety record (paper form or EPR), and does not capture patient identity, personnel, drugs or signatures.</p>
+  <button id="beginBtn" class="begin-btn" type="button">Begin Checklist</button>
+</div>
+
+<div id="wizard" class="checklist-screen" hidden>
+  <div class="phase-tabs">
+    <button class="phase-tab phase-tab-before" data-jump="before" type="button">Before</button>
+    <button class="phase-tab phase-tab-timeout" data-jump="timeout" type="button">Time Out</button>
+    <button class="phase-tab phase-tab-signout" data-jump="signout" type="button">Sign Out</button>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <p class="progress-label" id="progressLabel"></p>
+  <div class="question-card">
+    <span class="phase-banner" id="phaseBanner"></span>
+    <span class="question-subsection" id="questionSubsection"></span>
+    <h2 class="question-text" id="questionText"></h2>
+    <div class="answer-buttons" id="answerButtons">
+      <button class="ans-btn ans-yes" data-ans="yes" type="button">YES</button>
+      <button class="ans-btn ans-no" data-ans="no" type="button">NO</button>
+    </div>
+    <div class="answer-text" id="answerTextWrap" hidden>
+      <textarea id="textInput" rows="4" placeholder="Leave blank if there were no concerns"></textarea>
+      <button class="continue-btn" id="continueBtn" type="button">Continue</button>
+    </div>
+  </div>
+  <button class="wizard-back-btn" id="wizardBackBtn" type="button">&larr; Back</button>
+</div>
+
+<div id="summaryScreen" class="checklist-screen" hidden>
+  <div id="summaryBanner" class="summary-banner"></div>
+  <div id="summaryBody"></div>
+  <button class="restart-final-btn" id="restartFinalBtn" type="button">Start New Checklist</button>
+  <p class="summary-footnote">Nothing on this screen is saved or transmitted. Complete your unit's documented record separately.</p>
+</div>
+
+</main>
+<footer>
+<p>Emergency Airway Portal &mdash; offline directory for hospital tablets</p>
+</footer>
+<script src="rsi-checklist.js"></script>
+</body>
+</html>

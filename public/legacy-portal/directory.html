@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<meta name="theme-color" content="#005EB8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Airway Legacy">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="../icons/icon-192.png">
+<title>Directory</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+<a class="back" href="index.html">&larr; Back</a>
+<h1>Directory</h1>
+</header>
+<main>
+<div class="switchboard-banner switchboard-banner-tbc">
+  <img class="switchboard-qr" src="directory-qr.svg" alt="QR code that calls the hospital switchboard" width="120" height="120">
+  <span class="switchboard-label">Switchboard</span>
+  <span class="switchboard-sub">Number not yet set - see directory-data.csv</span>
+</div>
+<input type="text" id="dir-search" class="dir-search" placeholder="Search names, departments, bleeps&hellip;" autocapitalize="none" autocorrect="off" autocomplete="off">
+<div id="dir-list">
+<div class="dir-row" data-search="site/duty manager xxxx">
+  <span class="dir-name">Site/Duty Manager</span>
+  <span class="dir-number dir-number-tbc">XXXX</span>
+  
+</div>
+<div class="dir-row" data-search="resus/crash bleep xxxx">
+  <span class="dir-name">Resus/Crash Bleep</span>
+  <span class="dir-number dir-number-tbc">XXXX</span>
+  
+</div>
+<div class="dir-row" data-search="security xxxx">
+  <span class="dir-name">Security</span>
+  <span class="dir-number dir-number-tbc">XXXX</span>
+  
+</div>
+<div class="dir-row" data-search="portering xxxx">
+  <span class="dir-name">Portering</span>
+  <span class="dir-number dir-number-tbc">XXXX</span>
+  
+</div>
+<div class="dir-row" data-search="pharmacy (on-call) xxxx">
+  <span class="dir-name">Pharmacy (on-call)</span>
+  <span class="dir-number dir-number-tbc">XXXX</span>
+  
+</div>
+<div class="dir-row" data-search="blood bank / transfusion xxxx">
+  <span class="dir-name">Blood Bank / Transfusion</span>
+  <span class="dir-number dir-number-tbc">XXXX</span>
+  
+</div>
+<details class="dir-group">
+<summary>Theatres</summary>
+<div class="dir-children">
+<div class="dir-row" data-search="theatres e level xxxx">
+  <span class="dir-name">E Level</span>
+  <span class="dir-number dir-number-tbc">XXXX</span>
+  
+</div>
+<div class="dir-row" data-search="theatres d level xxxx">
+  <span class="dir-name">D Level</span>
+  <span class="dir-number dir-number-tbc">XXXX</span>
+  
+</div>
+<div class="dir-row" data-search="theatres maternity xxxx">
+  <span class="dir-name">Maternity</span>
+  <span class="dir-number dir-number-tbc">XXXX</span>
+  
+</div>
+<div class="dir-row" data-search="theatres recovery xxxx">
+  <span class="dir-name">Recovery</span>
+  <span class="dir-number dir-number-tbc">XXXX</span>
+  
+</div>
+</div>
+</details>
+<details class="dir-group">
+<summary>ENT</summary>
+<div class="dir-children">
+<div class="dir-row" data-search="ent consultant xxxx">
+  <span class="dir-name">Consultant</span>
+  <span class="dir-number dir-number-tbc">XXXX</span>
+  
+</div>
+<div class="dir-row" data-search="ent registrar xxxx">
+  <span class="dir-name">Registrar</span>
+  <span class="dir-number dir-number-tbc">XXXX</span>
+  
+</div>
+<div class="dir-row" data-search="ent sho xxxx">
+  <span class="dir-name">SHO</span>
+  <span class="dir-number dir-number-tbc">XXXX</span>
+  
+</div>
+<div class="dir-row" data-search="ent fy1 xxxx">
+  <span class="dir-name">FY1</span>
+  <span class="dir-number dir-number-tbc">XXXX</span>
+  
+</div>
+</div>
+</details>
+</div>
+<p id="dir-no-results" class="dir-no-results" hidden>No matches.</p>
+<script>
+(function () {
+  var input = document.getElementById('dir-search');
+  var rows = document.querySelectorAll('.dir-row');
+  var groups = document.querySelectorAll('details.dir-group');
+  var noResults = document.getElementById('dir-no-results');
+  if (!input) return;
+
+  input.addEventListener('input', function () {
+    var query = input.value.trim().toLowerCase();
+    var anyVisible = false;
+
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      var match = query === '' || (row.getAttribute('data-search') || '').indexOf(query) !== -1;
+      row.style.display = match ? '' : 'none';
+      if (match) anyVisible = true;
+    }
+
+    for (var j = 0; j < groups.length; j++) {
+      var group = groups[j];
+      var groupRows = group.querySelectorAll('.dir-row');
+      var hasVisible = false;
+      for (var k = 0; k < groupRows.length; k++) {
+        if (groupRows[k].style.display !== 'none') {
+          hasVisible = true;
+          break;
+        }
+      }
+      group.style.display = hasVisible ? '' : 'none';
+      if (query === '') {
+        group.removeAttribute('open');
+      } else if (hasVisible) {
+        group.setAttribute('open', 'open');
+      }
+    }
+
+    if (noResults) noResults.hidden = anyVisible || query === '';
+  });
+})();
+</script>
+</main>
+<footer>
+<p>Emergency Airway Portal &mdash; offline directory for hospital tablets</p>
+</footer>
+</body>
+</html>
