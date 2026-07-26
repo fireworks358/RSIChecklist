@@ -4,10 +4,12 @@
 # rebuild the page with:
 #   node generate-legacy-portal.cjs
 #
-# Columns: Path,Number,Notes
+# Columns: Path,Type,Number,Notes
 #   Path   Name of the entry. Use " > " to nest it under a parent group, e.g.
-#          "Theatres > E Level" puts an "E Level" entry inside a "Theatres"
-#          group. Any depth works: "Theatres > E Level > On-call" is fine too.
+#          "Theatres > E Level > Theatre 1" nests a "Theatre 1" entry inside
+#          an "E Level" group inside a "Theatres" group. Any depth works.
+#   Type   "phone" or "bleep". Controls the colour and label (Ext/Bleep) shown
+#          next to the number. Leave blank for "phone".
 #   Number Extension or bleep number. Leave blank (or "XXXX") for "not yet
 #          set" - it will show as TBC instead of a dead tap-to-call link.
 #   Notes  Optional short note shown under the entry, e.g. "internal only".
@@ -18,19 +20,46 @@
 # list below. If you change its number, also regenerate the QR code:
 #   python3 generate-directory-qr.py
 #
-Path,Number,Notes
-Switchboard,XXXX,
-Site/Duty Manager,XXXX,
-Resus/Crash Bleep,XXXX,
-Security,XXXX,
-Portering,XXXX,
-Pharmacy (on-call),XXXX,
-Blood Bank / Transfusion,XXXX,
-Theatres > E Level,XXXX,
-Theatres > D Level,XXXX,
-Theatres > Maternity,XXXX,
-Theatres > Recovery,XXXX,
-ENT > Consultant,XXXX,
-ENT > Registrar,XXXX,
-ENT > SHO,XXXX,
-ENT > FY1,XXXX,
+Path,Type,Number,Notes
+Switchboard,phone,XXXX,
+Site/Duty Manager,phone,XXXX,
+Resus/Crash Bleep,bleep,XXXX,
+Security,phone,XXXX,
+Portering,phone,XXXX,
+Pharmacy (on-call),bleep,XXXX,
+Blood Bank / Transfusion,phone,XXXX,
+Theatres > E Level > Theatre 1,phone,XXXX,
+Theatres > E Level > Theatre 2,phone,XXXX,
+Theatres > E Level > Theatre 3,phone,XXXX,
+Theatres > E Level > Theatre 4,phone,XXXX,
+Theatres > E Level > Theatre 5,phone,XXXX,
+Theatres > E Level > Theatre 6,phone,XXXX,
+Theatres > E Level > Theatre 7,phone,XXXX,
+Theatres > E Level > Theatre 8,phone,XXXX,
+Theatres > E Level > Theatre 9,phone,XXXX,
+Theatres > E Level > Theatre 10,phone,XXXX,
+Theatres > E Level > Theatre 11,phone,XXXX,
+Theatres > E Level > Theatre 12,phone,XXXX,
+Theatres > E Level > Theatre 13,phone,XXXX,
+Theatres > E Level > Theatre 14,phone,XXXX,
+Theatres > E Level > Theatre 15,phone,XXXX,
+Theatres > E Level > Theatre 16,phone,XXXX,
+Theatres > E Level > Theatre 17,phone,XXXX,
+Theatres > E Level > Theatre 18,phone,XXXX,
+Theatres > E Level > Theatre 19,phone,XXXX,
+Theatres > E Level > Theatre 20,phone,XXXX,
+Theatres > E Level > Theatre 21,phone,XXXX,
+Theatres > E Level > Theatre 22,phone,XXXX,
+Theatres > D Level > Theatre 1,phone,XXXX,
+Theatres > D Level > Theatre 2,phone,XXXX,
+Theatres > D Level > Theatre 3,phone,XXXX,
+Theatres > D Level > Theatre 4,phone,XXXX,
+Theatres > D Level > Theatre 5,phone,XXXX,
+Theatres > D Level > Theatre 6,phone,XXXX,
+Theatres > D Level > Theatre 7,phone,XXXX,
+Theatres > Maternity,phone,XXXX,
+Theatres > Recovery,phone,XXXX,
+ENT > Consultant,bleep,XXXX,
+ENT > Registrar,bleep,XXXX,
+ENT > SHO,bleep,XXXX,
+ENT > FY1,bleep,XXXX,

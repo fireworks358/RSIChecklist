@@ -41,8 +41,7 @@ const adultGuidelines = [
 ];
 
 const paediatricGuidelines = [
-  { title: 'RSI Checklist', file: 'rsi-checklist.pdf', href: 'rsi-checklist.html', description: 'Interactive step-by-step Rapid Sequence Intubation checklist' },
-  { title: 'Intubation Checklist', file: 'intubation-checklist-2024.pdf', description: 'SORT intubation checklist for paediatric patients (2024)' },
+  { title: 'Intubation Checklist', file: 'intubation-checklist-2024.pdf', href: 'paediatric-intubation-checklist.html', description: 'Interactive step-by-step SORT paediatric intubation checklist (2024)' },
   { title: 'Anaesthesia for Emergencies', file: 'anaesthesia-for-emergencies.pdf', description: 'Guidelines for emergency anaesthesia procedures' },
   { title: 'Cardiac Arrest (ALS)', file: 'cardiac-arrest-als.pdf', description: 'Advanced life support protocol for paediatric cardiac arrest', group: 'Arrest' },
   { title: 'ROSC Management', file: 'rosc-management.pdf', description: 'Management protocol following return of spontaneous circulation', group: 'Arrest' },
@@ -153,6 +152,7 @@ function buildDirectoryTree(rows) {
       if (idx === segments.length - 1) {
         node.number = row.number || '';
         node.notes = row.notes || '';
+        node.type = (row.type || 'phone').toLowerCase() === 'bleep' ? 'bleep' : 'phone';
       }
     });
   });
@@ -163,20 +163,21 @@ function telHref(rawNumber) {
   return (rawNumber || '').replace(/[^\d+]/g, '');
 }
 
-function renderDirectoryNumber(rawNumber) {
+function renderDirectoryNumber(rawNumber, type) {
   const digits = telHref(rawNumber);
+  const label = type === 'bleep' ? 'Bleep' : 'Ext';
   if (!digits) {
-    return `<span class="dir-number dir-number-tbc">${escapeHtml(rawNumber || 'TBC')}</span>`;
+    return `<span class="dir-number dir-number-tbc">${escapeHtml(label)} ${escapeHtml(rawNumber || 'TBC')}</span>`;
   }
-  return `<a class="dir-number" href="tel:${digits}">${escapeHtml(rawNumber)}</a>`;
+  return `<a class="dir-number dir-number-${type}" href="tel:${digits}">${escapeHtml(label)} ${escapeHtml(rawNumber)}</a>`;
 }
 
 function renderDirectoryLeaf(node, ancestors) {
   const path = ancestors.concat([node.name]);
-  const searchStr = escapeHtml(`${path.join(' ')} ${node.number || ''}`.toLowerCase());
+  const searchStr = escapeHtml(`${path.join(' ')} ${node.type || ''} ${node.number || ''}`.toLowerCase());
   return `<div class="dir-row" data-search="${searchStr}">
   <span class="dir-name">${escapeHtml(node.name)}</span>
-  ${renderDirectoryNumber(node.number)}
+  ${renderDirectoryNumber(node.number, node.type)}
   ${node.notes ? `<span class="dir-notes">${escapeHtml(node.notes)}</span>` : ''}
 </div>\n`;
 }
@@ -189,7 +190,7 @@ function renderDirectoryNode(node, ancestors) {
   const path = ancestors.concat([node.name]);
   let inner = '';
   if (node.number) {
-    inner += renderDirectoryLeaf({ name: 'General', number: node.number, notes: node.notes, children: new Map() }, path);
+    inner += renderDirectoryLeaf({ name: 'General', number: node.number, notes: node.notes, type: node.type, children: new Map() }, path);
   }
   node.children.forEach((child) => {
     inner += renderDirectoryNode(child, path);
@@ -348,15 +349,7 @@ fs.writeFileSync(
   path.join(OUT_DIR, 'index.html'),
   page(
     'Emergency Airway Portal',
-    `<a class="landing-tile tile-rsi" href="rsi-checklist.html">
-  <span class="tile-title">RSI Checklist</span>
-  <span class="tile-sub">Step-by-step, point of use</span>
-</a>
-<a class="landing-tile tile-directory" href="directory.html">
-  <span class="tile-title">Directory</span>
-  <span class="tile-sub">Key phone &amp; bleep numbers</span>
-</a>
-<div class="landing-grid">
+    `<div class="landing-grid">
   <a class="landing-tile tile-adult" href="adult.html">
     <span class="tile-title">Adult</span>
     <span class="tile-sub">Guidelines &amp; algorithms</span>
@@ -377,9 +370,9 @@ fs.writeFileSync(
   </a>
 </div>
 <div class="landing-grid">
-  <a class="landing-tile tile-minestrone" href="/minestrone">
-    <span class="tile-title">Minestrone</span>
-    <span class="tile-sub">In-house PHR</span>
+  <a class="landing-tile tile-directory" href="directory.html">
+    <span class="tile-title">Directory</span>
+    <span class="tile-sub">Phone &amp; bleep numbers</span>
   </a>
   <div class="landing-tile tile-feedback tile-qr">
     <img class="tile-qr-code" src="feedback-qr.svg" alt="QR code linking to the feedback form" width="110" height="110">
