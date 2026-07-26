@@ -27,8 +27,8 @@ def switchboard_number_from_csv():
         if not line or line.startswith("#"):
             continue
         fields = line.split(",")
-        if fields[0].strip().lower() == "switchboard" and len(fields) > 1:
-            return fields[1].strip()
+        if fields[0].strip().lower() == "switchboard" and len(fields) > 2:
+            return fields[2].strip()
     return ""
 
 

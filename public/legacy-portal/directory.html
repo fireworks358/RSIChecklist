@@ -19,41 +19,16 @@
 <h1>Directory</h1>
 </header>
 <main>
-<div class="switchboard-banner switchboard-banner-tbc">
+<a class="switchboard-banner" href="tel:02392286000">
   <img class="switchboard-qr" src="directory-qr.svg" alt="QR code that calls the hospital switchboard" width="120" height="120">
   <span class="switchboard-label">Switchboard</span>
-  <span class="switchboard-sub">Number not yet set - see directory-data.csv</span>
-</div>
+  <span class="switchboard-sub">Scan or tap to call 02392286000</span>
+</a>
 <input type="text" id="dir-search" class="dir-search" placeholder="Search names, departments, bleeps&hellip;" autocapitalize="none" autocorrect="off" autocomplete="off">
 <div id="dir-list">
-<div class="dir-row" data-search="site/duty manager phone xxxx">
-  <span class="dir-name">Site/Duty Manager</span>
-  <span class="dir-number dir-number-tbc">Ext XXXX</span>
-  
-</div>
-<div class="dir-row" data-search="resus/crash bleep bleep xxxx">
-  <span class="dir-name">Resus/Crash Bleep</span>
-  <span class="dir-number dir-number-tbc">Bleep XXXX</span>
-  
-</div>
-<div class="dir-row" data-search="security phone xxxx">
-  <span class="dir-name">Security</span>
-  <span class="dir-number dir-number-tbc">Ext XXXX</span>
-  
-</div>
-<div class="dir-row" data-search="portering phone xxxx">
-  <span class="dir-name">Portering</span>
-  <span class="dir-number dir-number-tbc">Ext XXXX</span>
-  
-</div>
-<div class="dir-row" data-search="pharmacy (on-call) bleep xxxx">
-  <span class="dir-name">Pharmacy (on-call)</span>
-  <span class="dir-number dir-number-tbc">Bleep XXXX</span>
-  
-</div>
-<div class="dir-row" data-search="blood bank / transfusion phone xxxx">
+<div class="dir-row" data-search="blood bank / transfusion phone 6539">
   <span class="dir-name">Blood Bank / Transfusion</span>
-  <span class="dir-number dir-number-tbc">Ext XXXX</span>
+  <a class="dir-number dir-number-phone" href="tel:6539">Ext 6539</a>
   
 </div>
 <details class="dir-group">
@@ -127,9 +102,9 @@
   <span class="dir-number dir-number-tbc">Ext XXXX</span>
   
 </div>
-<div class="dir-row" data-search="theatres e level theatre 14 phone xxxx">
+<div class="dir-row" data-search="theatres e level theatre 14 phone 4859">
   <span class="dir-name">Theatre 14</span>
-  <span class="dir-number dir-number-tbc">Ext XXXX</span>
+  <a class="dir-number dir-number-phone" href="tel:4859">Ext 4859</a>
   
 </div>
 <div class="dir-row" data-search="theatres e level theatre 15 phone xxxx">
@@ -214,16 +189,46 @@
 </div>
 </div>
 </details>
-<div class="dir-row" data-search="theatres maternity phone xxxx">
-  <span class="dir-name">Maternity</span>
-  <span class="dir-number dir-number-tbc">Ext XXXX</span>
+<details class="dir-group">
+<summary>Maternity</summary>
+<div class="dir-children">
+<div class="dir-row" data-search="theatres maternity theatre 1 (elective) phone 4521">
+  <span class="dir-name">Theatre 1 (Elective)</span>
+  <a class="dir-number dir-number-phone" href="tel:4521">Ext 4521</a>
   
 </div>
-<div class="dir-row" data-search="theatres recovery phone xxxx">
-  <span class="dir-name">Recovery</span>
-  <span class="dir-number dir-number-tbc">Ext XXXX</span>
+<div class="dir-row" data-search="theatres maternity theatre 2 (emergencies) phone 4525">
+  <span class="dir-name">Theatre 2 (Emergencies)</span>
+  <a class="dir-number dir-number-phone" href="tel:4525">Ext 4525</a>
   
 </div>
+<div class="dir-row" data-search="theatres maternity theatre office phone 4526">
+  <span class="dir-name">Theatre Office</span>
+  <a class="dir-number dir-number-phone" href="tel:4526">Ext 4526</a>
+  
+</div>
+</div>
+</details>
+<details class="dir-group">
+<summary>Recovery</summary>
+<div class="dir-children">
+<div class="dir-row" data-search="theatres recovery e level phone 4873">
+  <span class="dir-name">E Level</span>
+  <a class="dir-number dir-number-phone" href="tel:4873">Ext 4873</a>
+  
+</div>
+<div class="dir-row" data-search="theatres recovery paeds phone 4856">
+  <span class="dir-name">Paeds</span>
+  <a class="dir-number dir-number-phone" href="tel:4856">Ext 4856</a>
+  
+</div>
+<div class="dir-row" data-search="theatres recovery d level phone 6129">
+  <span class="dir-name">D Level</span>
+  <a class="dir-number dir-number-phone" href="tel:6129">Ext 6129</a>
+  
+</div>
+</div>
+</details>
 </div>
 </details>
 <details class="dir-group">
@@ -247,6 +252,51 @@
 <div class="dir-row" data-search="ent fy1 bleep xxxx">
   <span class="dir-name">FY1</span>
   <span class="dir-number dir-number-tbc">Bleep XXXX</span>
+  
+</div>
+</div>
+</details>
+<details class="dir-group">
+<summary>Anaesthetics</summary>
+<div class="dir-children">
+<div class="dir-row" data-search="anaesthetics consultant bleep 1622">
+  <span class="dir-name">Consultant</span>
+  <a class="dir-number dir-number-bleep" href="tel:1622">Bleep 1622</a>
+  
+</div>
+<div class="dir-row" data-search="anaesthetics registrar bleep 1636">
+  <span class="dir-name">Registrar</span>
+  <a class="dir-number dir-number-bleep" href="tel:1636">Bleep 1636</a>
+  
+</div>
+<div class="dir-row" data-search="anaesthetics sho bleep 1611">
+  <span class="dir-name">SHO</span>
+  <a class="dir-number dir-number-bleep" href="tel:1611">Bleep 1611</a>
+  
+</div>
+</div>
+</details>
+<details class="dir-group">
+<summary>ODPs</summary>
+<div class="dir-children">
+<div class="dir-row" data-search="odps maternity emergency bleep 1336">
+  <span class="dir-name">Maternity Emergency</span>
+  <a class="dir-number dir-number-bleep" href="tel:1336">Bleep 1336</a>
+  
+</div>
+<div class="dir-row" data-search="odps maternity emergency (for e level operating only) bleep 1675">
+  <span class="dir-name">Maternity Emergency (for E Level operating only)</span>
+  <a class="dir-number dir-number-bleep" href="tel:1675">Bleep 1675</a>
+  
+</div>
+<div class="dir-row" data-search="odps coordinator/cepod (ooh) bleep 1702">
+  <span class="dir-name">Coordinator/CEPOD (OOH)</span>
+  <a class="dir-number dir-number-bleep" href="tel:1702">Bleep 1702</a>
+  
+</div>
+<div class="dir-row" data-search="odps airway emergency bleep 1380">
+  <span class="dir-name">Airway Emergency</span>
+  <a class="dir-number dir-number-bleep" href="tel:1380">Bleep 1380</a>
   
 </div>
 </div>
