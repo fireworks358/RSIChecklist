@@ -93,40 +93,45 @@ function encodeHref(file) {
 // entries without touching HTML/JS. See that file's header comment for the
 // column format.
 
-function parseCsv(text) {
-  const lines = text
-    .split(/\r?\n/)
-    .filter((line) => line.trim().length > 0 && !line.trim().startsWith('#'));
-
-  const rows = lines.map((line) => {
-    const fields = [];
-    let cur = '';
-    let inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (inQuotes) {
-        if (ch === '"') {
-          if (line[i + 1] === '"') {
-            cur += '"';
-            i++;
-          } else {
-            inQuotes = false;
-          }
+function tokenizeCsvLine(line) {
+  const fields = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (line[i + 1] === '"') {
+          cur += '"';
+          i++;
         } else {
-          cur += ch;
+          inQuotes = false;
         }
-      } else if (ch === '"') {
-        inQuotes = true;
-      } else if (ch === ',') {
-        fields.push(cur);
-        cur = '';
       } else {
         cur += ch;
       }
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === ',') {
+      fields.push(cur);
+      cur = '';
+    } else {
+      cur += ch;
     }
-    fields.push(cur);
-    return fields;
-  });
+  }
+  fields.push(cur);
+  return fields;
+}
+
+function parseCsv(text) {
+  const lines = text.split(/\r?\n/).filter((line) => line.trim().length > 0);
+
+  // Tokenize before checking for comment lines: a spreadsheet re-save can wrap
+  // a "# ..." comment in quotes (e.g. because it contains a comma), which
+  // hides the leading '#' until the CSV quoting has been stripped off.
+  const rows = lines
+    .map((line) => tokenizeCsvLine(line))
+    .filter((fields) => !(fields[0] || '').trim().startsWith('#'));
 
   const header = rows[0].map((h) => h.trim().toLowerCase());
   return rows.slice(1).map((fields) => {
